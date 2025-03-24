@@ -1,0 +1,8 @@
+tinyxml
+protobuf-3.19.4
+.vscode/
+rocket/build
+rocket/bin
+rocket/lib
+rocket/obj
+rocket/.cache
