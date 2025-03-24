@@ -7,13 +7,18 @@ namespace rocket {
 class Config {
 public:
 	Config(const char* xmlfile);
-    
-private:
+
+public:
+	static Config* GetGlobalConfig();
+	static void setGlobalConfig(const char* xmlfile);
 	Config() = default;
-    std::map<std::string, std::string> m_config_values;
+
+private:
+	std::map<std::string, std::string> m_config_values;
+
+public:
+	std::string m_log_level;
 };
-
-
 
 } // namespace rocket
 

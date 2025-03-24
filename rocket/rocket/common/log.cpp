@@ -1,11 +1,13 @@
 #include "log.h"
+#include "mutex.h"
 #include "util.h"
 #include <ctime>
+#include <queue>
 #include <sstream>
 #include <string>
 #include <sys/time.h>
 #include <iostream>
-
+#include "common/config.h"
 
 
 namespace rocket {
@@ -13,12 +15,15 @@ namespace rocket {
 static Logger* g_logger = nullptr;
 
 Logger* Logger::getGlobalLogger() {
-    if (g_logger == nullptr) {
-        g_logger = new Logger();
-    }
     return g_logger;
 }
 
+
+void Logger::InitGlobalLogger() {
+	LogLevel global_log_level = StringToLogLevel(Config::GetGlobalConfig()->m_log_level);
+    std::cout << "Init global log level is " << Config::GetGlobalConfig()->m_log_level << std::endl;
+	g_logger = new Logger(global_log_level);
+}
 
 std::string LogLevelToString(LogLevel level) {
 	switch (level) {
@@ -30,6 +35,18 @@ std::string LogLevelToString(LogLevel level) {
 		return "ERROR";
 	default:
 		return "UNKNOWN";
+	}
+}
+
+LogLevel StringToLogLevel(const std::string& log_level) {
+	if (log_level == "DEBUG") {
+		return LogLevel::Debug;
+	} else if (log_level == "INFO") {
+		return LogLevel::Info;
+	} else if (log_level == "ERROR") {
+		return LogLevel::Error;
+	} else {
+		return LogLevel::Unknown;
 	}
 }
 
@@ -56,20 +73,26 @@ std::string LogEvent::toString() {
 
 	ss << "[" << LogLevelToString(m_level) << "]\t"
 	   << "[" << time_str << "]\t"
-	   << "[" << m_pid << ":" << m_thred_id << "]\t"
-	   << "[" << std::string(__FILE__) << ":" << __LINE__ << "]\t";
+	   << "[" << m_pid << ":" << m_thred_id << "]\t";
 
 	return ss.str();
 }
 
 void Logger::pushLog(const std::string& msg) {
+	ScopeMutex<Mutex> lock(m_mutex);
     m_buffers.push(msg);
+	lock.unlock();
 }
 
 void Logger::log() {
-    while (!m_buffers.empty()) {
-        std::cout << m_buffers.front() << std::endl;
-        m_buffers.pop();
+	ScopeMutex<Mutex> lock(m_mutex);
+	std::queue<std::string> tmp {m_buffers};
+	m_buffers.swap(tmp);
+	lock.unlock();
+    while (!tmp.empty()) {
+        std::cout << tmp.front() << std::endl;
+        tmp.pop();
     }
+	
 }
 } // namespace rocket
