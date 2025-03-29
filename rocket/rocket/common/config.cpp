@@ -46,7 +46,7 @@ Config::Config(const char* xmlfile) {
 		          << xmlfile << std::endl;
 		std::exit(0);
 	}
-
+	
 	READ_XML_NODE(root, xml_document);
 	READ_XML_NODE(log, root_node);
 
