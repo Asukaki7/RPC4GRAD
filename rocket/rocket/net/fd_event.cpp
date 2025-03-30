@@ -10,6 +10,9 @@ FdEvent::FdEvent(int fd) : m_fd(fd) {
     memset(&m_listen_event, 0, sizeof(m_listen_event));
 }
 
+FdEvent::FdEvent() {
+    memset(&m_listen_event, 0, sizeof(m_listen_event));
+}
 
 FdEvent::~FdEvent() {
 
@@ -24,7 +27,7 @@ std::function<void()> FdEvent::handler(TriggerEvent event) {
     }
 }
 
-void FdEvent::listenRead(TriggerEvent event_type, std::function<void()> callback) {
+void FdEvent::listen(TriggerEvent event_type, std::function<void()> callback) {
     if (event_type == TriggerEvent::IN_EVENT) {
         m_listen_event.events |= EPOLLIN;
         m_read_callback = callback;  

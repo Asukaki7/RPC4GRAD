@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include "rocket/net/timer_event.h"
 
 int main() {
 
@@ -28,7 +29,7 @@ int main() {
 	sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));
 
-	addr.sin_port = htons(12348);
+	addr.sin_port = htons(12345);
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	inet_aton("127.0.0.1", &addr.sin_addr);
@@ -47,7 +48,7 @@ int main() {
 	}
 
 	rocket::FdEvent event(listenfd);
-	event.listenRead(rocket::FdEvent::IN_EVENT, [listenfd]() {
+	event.listen(rocket::FdEvent::IN_EVENT, [listenfd]() {
 		sockaddr_in peer_addr;
 		socklen_t addr_len = sizeof(peer_addr);
 		memset(&peer_addr, 0, sizeof(peer_addr));
@@ -64,5 +65,10 @@ int main() {
 	});
 	eventLoop->addEpollEvent(&event);
 
+	int i = 0;
+	rocket::TimerEvent::s_ptr timer_event = std::make_shared<rocket::TimerEvent>(
+	    1000, true, [&i]() { INFOLOG("trigger timer event count = %d", i++); });
+	eventLoop->addTimerEvent(timer_event);
+	
 	eventLoop->loop();
 }

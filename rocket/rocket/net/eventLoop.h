@@ -4,6 +4,8 @@
 #include "rocket/common/mutex.h"
 #include "rocket/net/fd_event.h"
 #include "rocket/net/wakeup_fd_event.h"
+#include "rocket/net/timer.h"
+#include "timer_event.h"
 #include <functional>
 #include <pthread.h>
 #include <queue>
@@ -26,9 +28,12 @@ public:
 
 	bool isInLoopThread() const;
 	void addTask(std::function<void()> cb, bool is_wake_up = false); // add task to task queue
-	void initWakeupFdEvent();
+	void addTimerEvent(TimerEvent::s_ptr event);
+
 private:
 	void dealWakeup();
+	void initWakeupFdEvent();
+	void initTimer();
 
 private:
 	pid_t m_thread_id{0};
@@ -39,6 +44,7 @@ private:
 	std::set<int> m_listen_fds; // fd set
 	std::queue<std::function<void()>> m_pending_tasks; // task queue
 	Mutex m_mutex;
+	Timer* m_timer{nullptr};
 };
 } // namespace rocket
 

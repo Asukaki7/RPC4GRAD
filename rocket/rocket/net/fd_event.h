@@ -12,10 +12,11 @@ public:
         OUT_EVENT = EPOLLOUT,
     };
 	FdEvent(int fd);
+    FdEvent();
 	~FdEvent();
     std::function<void()> handler(TriggerEvent event_type);
 
-    void listenRead(TriggerEvent event_type, std::function<void()> callback);
+    void listen(TriggerEvent event_type, std::function<void()> callback);
 
     int getFd() const {
         return m_fd;
