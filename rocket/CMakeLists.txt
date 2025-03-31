@@ -41,12 +41,18 @@ file(GLOB NET_SOURCES rocket/net/*.cpp)
 add_library(rocket STATIC ${COMMON_SOURCES} ${NET_SOURCES})
 target_link_libraries(rocket ${PROTOBUF_LIB} ${TINYXML_LIB})
 
-# 构建测试用例
+# 构建测试用例 test_log
 # add_executable(test_log testcases/test_log.cpp)
 # target_link_libraries(test_log rocket ${PROTOBUF_LIB} ${TINYXML_LIB} dl pthread)
 
-add_executable(test_eventloop testcases/test_eventloop.cpp)
-target_link_libraries(test_eventloop rocket ${PROTOBUF_LIB} ${TINYXML_LIB} dl pthread)
+# 构建测试用例 test_eventloop
+# add_executable(test_eventloop testcases/test_eventloop.cpp)
+# target_link_libraries(test_eventloop rocket ${PROTOBUF_LIB} ${TINYXML_LIB} dl pthread)
+
+# 构建测试用例 test_IOthread
+add_executable(test_IOthread testcases/test_IOthread.cpp)
+target_link_libraries(test_IOthread rocket ${PROTOBUF_LIB} ${TINYXML_LIB} dl pthread)
+
 
 # 安装配置
 install(TARGETS rocket

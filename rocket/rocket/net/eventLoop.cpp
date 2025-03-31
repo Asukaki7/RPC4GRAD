@@ -140,7 +140,10 @@ void EventLoop::loop() {
 	}
 }
 
-void EventLoop::wakeup() { m_wakeup_fd_event->wakeup(); }
+void EventLoop::wakeup() { 
+	INFOLOG("Wake up");
+	m_wakeup_fd_event->wakeup(); 
+}
 
 void EventLoop::stop() { m_stop_flag = true; }
 

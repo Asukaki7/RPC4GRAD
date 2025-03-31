@@ -25,6 +25,7 @@ void WakeupFdEvent::wakeup() {
     if (rt != 8) {
         ERRORLOG("write to wakeup fd less than 8 bytes, fd[%d]", m_fd);
     }
+    DEBUGLOG("success read 8 butes");
 }
 
 
