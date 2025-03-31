@@ -4,6 +4,7 @@
 #include "rocket/net/fd_event.h"
 #include "rocket/net/io_thread.h"
 #include "rocket/net/timer_event.h"
+#include "rocket/net/io_thread_group.h"
 #include <arpa/inet.h>
 #include <memory>
 #include <netinet/in.h>
@@ -56,14 +57,27 @@ void test_io_thread() {
 		    INFOLOG("trigger timer event, count=%d", i++);
 	    });
 
-	rocket::IOThread io_thread;
+	// rocket::IOThread io_thread;
 
     
-	io_thread.geteventloop()->addEpollEvent(&event);
-	io_thread.geteventloop()->addTimerEvent(timer_event);
-	io_thread.start();
+	// io_thread.geteventloop()->addEpollEvent(&event);
+	// io_thread.geteventloop()->addTimerEvent(timer_event);
+	// io_thread.start();
 
-	io_thread.join();
+	// io_thread.join();
+
+	rocket::IOthreadGroup io_thread_group(2);
+	auto io_thread = io_thread_group.getIOthread();
+
+	io_thread->geteventloop()->addEpollEvent(&event);
+	io_thread->geteventloop()->addTimerEvent(timer_event);
+	
+	auto io_thread2 = io_thread_group.getIOthread();
+	io_thread2->geteventloop()->addTimerEvent(timer_event);	
+
+	io_thread_group.start();
+	io_thread_group.join();
+
 }
 
 int main() {
