@@ -17,6 +17,7 @@ add_compile_options(
     -Wno-deprecated
     -Wno-unused-but-set-variable
 )
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address  -fsanitize-recover=address  -fno-omit-frame-pointer")
 
 # 头文件包含路径
 include_directories(
@@ -24,6 +25,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/rocket
     ${CMAKE_SOURCE_DIR}/rocket/common
     ${CMAKE_SOURCE_DIR}/rocket/net
+    ${CMAKE_SOURCE_DIR}/rocket/net/TCP
 )
 
 # 查找依赖库
@@ -37,8 +39,9 @@ endif()
 # 构建静态库 librocket.a
 file(GLOB COMMON_SOURCES rocket/common/*.cpp)
 file(GLOB NET_SOURCES rocket/net/*.cpp)
+file(GLOB NET_TCP_SOURCES rocket/net/TCP/*.cpp)
 
-add_library(rocket STATIC ${COMMON_SOURCES} ${NET_SOURCES})
+add_library(rocket STATIC ${COMMON_SOURCES} ${NET_SOURCES} ${NET_TCP_SOURCES})
 target_link_libraries(rocket ${PROTOBUF_LIB} ${TINYXML_LIB})
 
 # 构建测试用例 test_log
@@ -50,9 +53,12 @@ target_link_libraries(rocket ${PROTOBUF_LIB} ${TINYXML_LIB})
 # target_link_libraries(test_eventloop rocket ${PROTOBUF_LIB} ${TINYXML_LIB} dl pthread)
 
 # 构建测试用例 test_IOthread
-add_executable(test_IOthread testcases/test_IOthread.cpp)
-target_link_libraries(test_IOthread rocket ${PROTOBUF_LIB} ${TINYXML_LIB} dl pthread)
+# add_executable(test_IOthread testcases/test_IOthread.cpp)
+# target_link_libraries(test_IOthread rocket ${PROTOBUF_LIB} ${TINYXML_LIB} dl pthread)
 
+# 构建测试用例 test_TCP
+add_executable(test_tcp testcases/test_tcp.cpp)
+target_link_libraries(test_tcp rocket ${PROTOBUF_LIB} ${TINYXML_LIB} dl pthread)
 
 # 安装配置
 install(TARGETS rocket
@@ -67,6 +73,11 @@ install(DIRECTORY rocket/common/
 
 install(DIRECTORY rocket/net/
     DESTINATION /usr/include/rocket/net
+    FILES_MATCHING PATTERN "*.h"
+)
+
+install(DIRECTORY rocket/net/TCP
+    DESTINATION /usr/include/rocket/net/TCP
     FILES_MATCHING PATTERN "*.h"
 )
 

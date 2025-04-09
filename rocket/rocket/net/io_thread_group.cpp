@@ -1,5 +1,6 @@
 #include "rocket/net/io_thread_group.h"
-#include "io_thread.h"
+#include "rocket/net/io_thread.h"
+#include <cstddef>
 
 namespace rocket {
 
@@ -26,7 +27,7 @@ void IOthreadGroup::join() {
 }
 
 IOThread* IOthreadGroup::getIOthread() {
-	if (m_index == m_io_thread_groups.size() || m_index == -1) {
+	if ((size_t)m_index == m_io_thread_groups.size() || m_index == -1) {
 		m_index = 0;
 	}
 	return m_io_thread_groups[m_index];
