@@ -69,4 +69,7 @@ int TcpAcceptor::accept() {
     }
     return -1;
 }
+
+int TcpAcceptor::getListenFd() { return m_listenfd; }
+
 } // namespace rocket

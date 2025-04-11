@@ -1,15 +1,20 @@
 #ifndef ROCKET_NET_TCP_TCP_ACCEPTOR_H
 #define ROCKET_NET_TCP_TCP_ACCEPTOR_H
 #include "rocket/net/TCP/net_addr.h"
+#include <memory>
 
 namespace rocket {
 class TcpAcceptor {
 public:
+	typedef std::shared_ptr<TcpAcceptor> s_ptr;
+
 	TcpAcceptor(NetAddr::s_ptr local_addr);
 
 	~TcpAcceptor();
 
 	int accept();
+
+	int getListenFd();
 
 private:
 	// 服务端监听端口 addr -> ip : port

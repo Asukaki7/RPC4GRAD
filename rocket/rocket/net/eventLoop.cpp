@@ -212,4 +212,13 @@ void EventLoop::addTimerEvent(TimerEvent::s_ptr event) {
 
 
 bool EventLoop::isInLoopThread() const { return getThreadId() == m_thread_id; }
+
+EventLoop* EventLoop::getCurrentEventLoop() { 
+	if (t_current_eventloop != nullptr) {
+		return t_current_eventloop;
+	}
+	t_current_eventloop = new EventLoop();
+	return t_current_eventloop;
+}
+
 } // namespace rocket

@@ -55,7 +55,7 @@ std::string IPNetAddr::toString() {
 
 bool IPNetAddr::checkValid() {
 	return !m_ip.empty() && (m_port >= 0 && m_port <= 65535) &&
-	       (inet_pton(AF_INET, m_ip.c_str(), nullptr) == 1);
+	       (inet_addr(m_ip.c_str()) != INADDR_NONE);
 }
 
 } // namespace rocket

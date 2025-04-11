@@ -13,19 +13,17 @@ namespace rocket {
 template <typename... Args>
 std::string formatString(const char* str, Args&&... args) {
 	int size = snprintf(nullptr, 0, str, args...);
-
 	std::string result;
 	if (size > 0) {
 		result.resize(size);
 		snprintf(&result[0], size + 1, str, args...);
 	}
-
 	return result;
 }
 
 #define DEBUGLOG(str, ...)                                                     \
 	do {                                                                       \
-		if (rocket::Logger::getGlobalLogger()->getlogLevel() ==                \
+		if (rocket::Logger::getGlobalLogger()->getlogLevel() <=                \
 		    rocket::LogLevel::Debug) {                                         \
 			auto msg =                                                         \
 			    (new rocket::LogEvent(rocket::LogLevel::Debug))->toString() +  \
@@ -40,7 +38,7 @@ std::string formatString(const char* str, Args&&... args) {
 
 #define INFOLOG(str, ...)                                                      \
 	do {                                                                       \
-		if (rocket::Logger::getGlobalLogger()->getlogLevel() ==                \
+		if (rocket::Logger::getGlobalLogger()->getlogLevel() <=                \
 		    rocket::LogLevel::Info) {                                          \
 			auto msg =                                                         \
 			    (new rocket::LogEvent(rocket::LogLevel::Info))->toString() +   \
@@ -55,7 +53,7 @@ std::string formatString(const char* str, Args&&... args) {
 
 #define ERRORLOG(str, ...)                                                     \
 	do {                                                                       \
-		if (rocket::Logger::getGlobalLogger()->getlogLevel() ==                \
+		if (rocket::Logger::getGlobalLogger()->getlogLevel() <=                \
 		    rocket::LogLevel::Error) {                                         \
 			auto msg =                                                         \
 			    (new rocket::LogEvent(rocket::LogLevel::Error))->toString() +  \
