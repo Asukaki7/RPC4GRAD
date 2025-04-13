@@ -80,7 +80,8 @@ void TcpConnection::onRead() {
 		// TODO 处理关闭链接
 		INFOLOG("remote close, remote addr [%s], clientfd[%d]",
 		        m_remote_addr->toString().c_str(), m_fd);
-		clear(); //
+		clear(); 
+		return;
 	}
 
 	if (!is_read_all) {
@@ -170,6 +171,9 @@ void TcpConnection::clear() {
 	if (m_state == TcpState::Closed) {
 		return;
 	}
+
+	m_fd_event->cancle(FdEvent::IN_EVENT);
+	m_fd_event->cancle(FdEvent::OUT_EVENT);
 
 	m_io_thread->geteventloop()->deleteEpollEvent(m_fd_event);
 
