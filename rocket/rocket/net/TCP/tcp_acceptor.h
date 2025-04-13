@@ -2,6 +2,7 @@
 #define ROCKET_NET_TCP_TCP_ACCEPTOR_H
 #include "rocket/net/TCP/net_addr.h"
 #include <memory>
+#include <utility>
 
 namespace rocket {
 class TcpAcceptor {
@@ -12,7 +13,7 @@ public:
 
 	~TcpAcceptor();
 
-	int accept();
+	std::pair<int, NetAddr::s_ptr> accept();
 
 	int getListenFd();
 

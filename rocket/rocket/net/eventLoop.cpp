@@ -1,8 +1,8 @@
 #include "rocket/net/eventLoop.h"
-#include "rocket/net/fd_event.h"
 #include "rocket/common/log.h"
 #include "rocket/common/mutex.h"
 #include "rocket/common/util.h"
+#include "rocket/net/fd_event.h"
 #include "rocket/net/timer.h"
 #include <cerrno>
 #include <cstdio>
@@ -28,6 +28,7 @@
 		ERRORLOG("faild epoll_ctrl when add fd,errno = %d, error = %s ", \
 		         errno, strerror(errno));                                \
 	}                                                                    \
+	m_listen_fds.insert(event->getFd());                                 \
 	DEBUGLOG("add event success, fd[%d]", event->getFd());
 
 #define DELETE_FROM_EPOLL()                                                 \
@@ -43,8 +44,8 @@
 		ERRORLOG("faild epoll_ctrl when delete fd,errno = %d, error = %s ", \
 		         errno, strerror(errno));                                   \
 	}                                                                       \
-	DEBUGLOG("delete event success [%d]", event->getFd());                  \
-	m_listen_fds.erase(it);
+	m_listen_fds.erase(it);                                                 \
+	DEBUGLOG("delete event success [%d]", event->getFd());
 
 namespace rocket {
 
@@ -71,7 +72,7 @@ EventLoop::EventLoop() {
 
 	initWakeupFdEvent();
 	initTimer();
-	
+
 	// epoll_event event;
 	// int rt = epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_wakeup_fd, &event);
 	// if (rt == -1) {
@@ -140,9 +141,9 @@ void EventLoop::loop() {
 	}
 }
 
-void EventLoop::wakeup() { 
+void EventLoop::wakeup() {
 	INFOLOG("Wake up");
-	m_wakeup_fd_event->wakeup(); 
+	m_wakeup_fd_event->wakeup();
 }
 
 void EventLoop::stop() { m_stop_flag = true; }
@@ -205,15 +206,13 @@ void EventLoop::initTimer() {
 	addEpollEvent(m_timer);
 }
 
-
 void EventLoop::addTimerEvent(TimerEvent::s_ptr event) {
 	m_timer->addTimerEvent(event);
 }
 
-
 bool EventLoop::isInLoopThread() const { return getThreadId() == m_thread_id; }
 
-EventLoop* EventLoop::getCurrentEventLoop() { 
+EventLoop* EventLoop::getCurrentEventLoop() {
 	if (t_current_eventloop != nullptr) {
 		return t_current_eventloop;
 	}

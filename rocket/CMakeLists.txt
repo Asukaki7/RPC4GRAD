@@ -44,21 +44,31 @@ file(GLOB NET_TCP_SOURCES rocket/net/TCP/*.cpp)
 add_library(rocket STATIC ${COMMON_SOURCES} ${NET_SOURCES} ${NET_TCP_SOURCES})
 target_link_libraries(rocket ${PROTOBUF_LIB} ${TINYXML_LIB})
 
-# 构建测试用例 test_log
-# add_executable(test_log testcases/test_log.cpp)
-# target_link_libraries(test_log rocket ${PROTOBUF_LIB} ${TINYXML_LIB} dl pthread)
 
-# 构建测试用例 test_eventloop
-# add_executable(test_eventloop testcases/test_eventloop.cpp)
-# target_link_libraries(test_eventloop rocket ${PROTOBUF_LIB} ${TINYXML_LIB} dl pthread)
+set(TEST_CASES
+    log         # 对应 testcases/test_log.cpp
+    eventloop   # 对应 testcases/test_eventloop.cpp
+    IOthread    # 对应 testcases/test_IOthread.cpp
+    tcp         # 对应 testcases/test_tcp.cpp
+    client
+)
 
-# 构建测试用例 test_IOthread
-# add_executable(test_IOthread testcases/test_IOthread.cpp)
-# target_link_libraries(test_IOthread rocket ${PROTOBUF_LIB} ${TINYXML_LIB} dl pthread)
+# 公共链接库配置
+set(TEST_LIBS rocket ${PROTOBUF_LIB} ${TINYXML_LIB} dl pthread)
 
-# 构建测试用例 test_TCP
-add_executable(test_tcp testcases/test_tcp.cpp)
-target_link_libraries(test_tcp rocket ${PROTOBUF_LIB} ${TINYXML_LIB} dl pthread)
+# 批量生成测试用例
+foreach(test_case IN LISTS TEST_CASES)
+    # 生成可执行文件名（如 test_log）
+    set(target_name "test_${test_case}")
+    # 生成源文件路径（如 testcases/test_log.cpp）
+    set(source_file "testcases/test_${test_case}.cpp")
+    
+    # 添加可执行文件
+    add_executable(${target_name} ${source_file})
+    # 链接库
+    target_link_libraries(${target_name} ${TEST_LIBS})
+endforeach()
+
 
 # 安装配置
 install(TARGETS rocket

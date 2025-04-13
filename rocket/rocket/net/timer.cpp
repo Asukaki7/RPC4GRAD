@@ -24,7 +24,7 @@ Timer::Timer()
 	m_fd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
 	DEBUGLOG("timer fd = %d", m_fd);
 
-	// 把fd可读事件放到eventloop伤监听
+	// 把fd可读事件放到eventloop上监听 
 	listen(FdEvent::IN_EVENT, std::bind(&Timer::onTimer, this));
 }
 

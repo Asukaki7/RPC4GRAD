@@ -28,7 +28,7 @@ std::string formatString(const char* str, Args&&... args) {
 			auto msg =                                                         \
 			    (new rocket::LogEvent(rocket::LogLevel::Debug))->toString() +  \
 			    "[" + std::string(__FILE__) + ":" + std::to_string(__LINE__) + \
-			    "] \t" + rocket::formatString(str, ##__VA_ARGS__) + '\n';      \
+			    "]\t" + rocket::formatString(str, ##__VA_ARGS__) + '\n';      \
 			if (msg.size() < msg.max_size()) {                                 \
 				rocket::Logger::getGlobalLogger()->pushLog(msg);               \
 				rocket::Logger::getGlobalLogger()->log();                      \
@@ -43,7 +43,7 @@ std::string formatString(const char* str, Args&&... args) {
 			auto msg =                                                         \
 			    (new rocket::LogEvent(rocket::LogLevel::Info))->toString() +   \
 			    "[" + std::string(__FILE__) + ":" + std::to_string(__LINE__) + \
-			    "] \t" + rocket::formatString(str, ##__VA_ARGS__) + '\n';      \
+			    "]\t" + rocket::formatString(str, ##__VA_ARGS__) + '\n';      \
 			if (msg.size() < msg.max_size()) {                                 \
 				rocket::Logger::getGlobalLogger()->pushLog(msg);               \
 				rocket::Logger::getGlobalLogger()->log();                      \
@@ -58,7 +58,7 @@ std::string formatString(const char* str, Args&&... args) {
 			auto msg =                                                         \
 			    (new rocket::LogEvent(rocket::LogLevel::Error))->toString() +  \
 			    "[" + std::string(__FILE__) + ":" + std::to_string(__LINE__) + \
-			    "] \t" + rocket::formatString(str, ##__VA_ARGS__) + '\n';      \
+			    "]\t" + rocket::formatString(str, ##__VA_ARGS__) + '\n';      \
 			if (msg.size() < msg.max_size()) {                                 \
 				rocket::Logger::getGlobalLogger()->pushLog(msg);               \
 				rocket::Logger::getGlobalLogger()->log();                      \

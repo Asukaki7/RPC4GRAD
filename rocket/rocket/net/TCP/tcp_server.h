@@ -4,9 +4,11 @@
 #include "fd_event.h"
 #include "rocket/net/TCP/net_addr.h"
 #include "rocket/net/TCP/tcp_acceptor.h"
+#include "rocket/net/TCP/tcp_connection.h"
 #include "rocket/net/eventLoop.h"
 #include "rocket/net/io_thread_group.h"
 #include <atomic>
+#include <set>
 
 namespace rocket {
 
@@ -32,6 +34,8 @@ private:
 	FdEvent* m_listen_fd_event{};
 
 	std::atomic<int> m_client_counts{};
+
+	std::set<TcpConnection::s_ptr> m_client;
 };
 
 } // namespace rocket
