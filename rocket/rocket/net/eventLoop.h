@@ -30,7 +30,7 @@ public:
 	void addTask(std::function<void()> cb,
 	             bool is_wake_up = false); // add task to task queue
 	void addTimerEvent(TimerEvent::s_ptr event);
-
+	bool isLooping() const;
 public:
 	static EventLoop* getCurrentEventLoop();
 
@@ -49,6 +49,7 @@ private:
 	std::queue<std::function<void()>> m_pending_tasks; // task queue
 	Mutex m_mutex;
 	Timer* m_timer{nullptr};
+	bool m_is_looping {false};
 };
 } // namespace rocket
 

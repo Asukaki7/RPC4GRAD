@@ -1,10 +1,10 @@
 #include "rocket/net/TCP/tcp_connection.h"
-#include "fd_event.h"
 #include "rocket/common/log.h"
 #include "rocket/net/TCP/net_addr.h"
 #include "rocket/net/TCP/tcp_buffer.h"
+#include "rocket/net/eventLoop.h"
+#include "rocket/net/fd_event.h"
 #include "rocket/net/fd_event_group.h"
-#include "rocket/net/io_thread.h"
 #include <functional>
 #include <memory>
 #include <string>
@@ -14,10 +14,10 @@
 
 namespace rocket {
 
-TcpConnection::TcpConnection(IOThread* io_thread, int fd, int buffer_size,
+TcpConnection::TcpConnection(EventLoop* event_loop, int fd, int buffer_size,
                              NetAddr::s_ptr remote_addr)
     : m_remote_addr(remote_addr)
-    , m_io_thread(io_thread)
+    , m_event_loop(event_loop)
     , m_fd(fd)
     , m_state(TcpState::NotConnecetd) {
 	m_in_buffer = std::make_shared<TcpBuffer>(buffer_size);
@@ -28,7 +28,7 @@ TcpConnection::TcpConnection(IOThread* io_thread, int fd, int buffer_size,
 	m_fd_event->listen(FdEvent::IN_EVENT,
 	                   std::bind(&TcpConnection::onRead, this));
 
-	io_thread->geteventloop()->addEpollEvent(m_fd_event);
+	m_event_loop->addEpollEvent(m_fd_event);
 }
 TcpConnection::~TcpConnection() {
 	DEBUGLOG("TcpConnection destructor, addr[%s], clientfd[%d]",
@@ -42,6 +42,7 @@ void TcpConnection::onRead() {
 		ERRORLOG("onRead error, client has already disconnected, addr[%s], "
 		         "clientfd[%d]",
 		         m_remote_addr->toString().c_str(), m_fd);
+		clear();
 		return;
 	}
 
@@ -80,7 +81,7 @@ void TcpConnection::onRead() {
 		// TODO 处理关闭链接
 		INFOLOG("remote close, remote addr [%s], clientfd[%d]",
 		        m_remote_addr->toString().c_str(), m_fd);
-		clear(); 
+		clear();
 		return;
 	}
 
@@ -113,7 +114,7 @@ void TcpConnection::execute() {
 	m_fd_event->listen(FdEvent::OUT_EVENT,
 	                   std::bind(&TcpConnection::onWrite, this));
 
-	m_io_thread->geteventloop()->addEpollEvent(m_fd_event);
+	m_event_loop->addEpollEvent(m_fd_event);
 }
 
 void TcpConnection::onWrite() {
@@ -156,7 +157,7 @@ void TcpConnection::onWrite() {
 
 	if (is_write_all) {
 		m_fd_event->cancle(FdEvent::OUT_EVENT);
-		m_io_thread->geteventloop()->addEpollEvent(m_fd_event);
+		m_event_loop->addEpollEvent(m_fd_event);
 	}
 }
 
@@ -175,7 +176,7 @@ void TcpConnection::clear() {
 	m_fd_event->cancle(FdEvent::IN_EVENT);
 	m_fd_event->cancle(FdEvent::OUT_EVENT);
 
-	m_io_thread->geteventloop()->deleteEpollEvent(m_fd_event);
+	m_event_loop->deleteEpollEvent(m_fd_event);
 
 	m_state = TcpState::Closed;
 }
@@ -192,6 +193,10 @@ void TcpConnection::shutdown() {
 	// 触发四次挥手的第一个阶段 服务器进入time_wait阶段
 	// 当fd发生可读事件，但是可读的数据为0，即对端发送了FIN
 	::shutdown(m_fd, SHUT_RDWR);
+}
+
+void TcpConnection::setConnectionType(TcpConnectionType type) {
+	m_connection_type = type;
 }
 
 } // namespace rocket

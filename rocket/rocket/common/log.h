@@ -11,12 +11,12 @@
 namespace rocket {
 
 template <typename... Args>
-std::string formatString(const char* str, Args&&... args) {
-	int size = snprintf(nullptr, 0, str, args...);
+std::string formatString(const char* fmt, Args&&... args) {
+	int size = snprintf(nullptr, 0, fmt, args...);
 	std::string result;
 	if (size > 0) {
 		result.resize(size);
-		snprintf(&result[0], size + 1, str, args...);
+		snprintf(&result[0], size + 1, fmt, args...);
 	}
 	return result;
 }
@@ -26,7 +26,7 @@ std::string formatString(const char* str, Args&&... args) {
 		if (rocket::Logger::getGlobalLogger()->getlogLevel() <=                \
 		    rocket::LogLevel::Debug) {                                         \
 			auto msg =                                                         \
-			    (new rocket::LogEvent(rocket::LogLevel::Debug))->toString() +  \
+			    (rocket::LogEvent(rocket::LogLevel::Debug)).toString() +  \
 			    "[" + std::string(__FILE__) + ":" + std::to_string(__LINE__) + \
 			    "]\t" + rocket::formatString(str, ##__VA_ARGS__) + '\n';      \
 			if (msg.size() < msg.max_size()) {                                 \
@@ -41,7 +41,7 @@ std::string formatString(const char* str, Args&&... args) {
 		if (rocket::Logger::getGlobalLogger()->getlogLevel() <=                \
 		    rocket::LogLevel::Info) {                                          \
 			auto msg =                                                         \
-			    (new rocket::LogEvent(rocket::LogLevel::Info))->toString() +   \
+			    (rocket::LogEvent(rocket::LogLevel::Info)).toString() +   \
 			    "[" + std::string(__FILE__) + ":" + std::to_string(__LINE__) + \
 			    "]\t" + rocket::formatString(str, ##__VA_ARGS__) + '\n';      \
 			if (msg.size() < msg.max_size()) {                                 \
@@ -56,7 +56,7 @@ std::string formatString(const char* str, Args&&... args) {
 		if (rocket::Logger::getGlobalLogger()->getlogLevel() <=                \
 		    rocket::LogLevel::Error) {                                         \
 			auto msg =                                                         \
-			    (new rocket::LogEvent(rocket::LogLevel::Error))->toString() +  \
+			    (rocket::LogEvent(rocket::LogLevel::Error)).toString() +  \
 			    "[" + std::string(__FILE__) + ":" + std::to_string(__LINE__) + \
 			    "]\t" + rocket::formatString(str, ##__VA_ARGS__) + '\n';      \
 			if (msg.size() < msg.max_size()) {                                 \

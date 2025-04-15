@@ -1,4 +1,5 @@
 #include "rocket/net/TCP/tcp_server.h"
+#include "io_thread.h"
 #include "rocket/common/log.h"
 #include "rocket/net/TCP/tcp_acceptor.h"
 #include "rocket/net/TCP/tcp_connection.h"
@@ -47,10 +48,9 @@ void TcpServer::onAccept() {
 	m_client_counts.fetch_add(1, std::memory_order_relaxed);
 
 	// TODO 把clientFd 添加到任意IO线程中
-
-	// m_io_thread_group->getIOthread()->geteventloop()->addEpollEvent();
+	IOThread* io_thread = m_io_thread_group->getIOthread();
     TcpConnection::s_ptr connection = std::make_shared<TcpConnection>(
-        m_io_thread_group->getIOthread(), client_fd, 128,
+       	io_thread->geteventloop(), client_fd, 128,
         remote_addr
     );
     connection->setState(TcpState::Connected);

@@ -1,8 +1,8 @@
+#include "rocket/net/TCP/net_addr.h"
 #include "rocket/common/config.h"
 #include "rocket/common/log.h"
+#include "rocket/net/TCP/tcp_client.h"
 #include <arpa/inet.h>
-#include <cstddef>
-#include <cstdint>
 #include <memory>
 #include <netinet/in.h>
 #include <pthread.h>
@@ -41,6 +41,14 @@ void test_connnect() {
 
     DEBUGLOG("success read %d bytes, [%s]", rt, buf);
 
+}
+
+void test_tcp_client() {
+	rocket::IPNetAddr::s_ptr addr = std::make_shared<rocket::IPNetAddr>("127.0.0.1", 12345);
+	rocket::TcpClient client(addr);
+	client.connect([addr]() {
+		DEBUGLOG("connect to [%s] success", addr->toString().c_str());
+	});
 
 }
 
@@ -49,5 +57,5 @@ int main() {
 	rocket::Config::setGlobalConfig("../conf/rocket.xml");
 
 	rocket::Logger::InitGlobalLogger();
-	test_connnect();
+	test_tcp_client();
 }
