@@ -26,7 +26,7 @@ TcpClient::TcpClient(NetAddr::s_ptr remote_addr)
 	m_fd_event->setNonBlock();
 
 	m_connection =
-	    std::make_shared<TcpConnection>(m_event_loop, m_fd, 128, m_remote_addr);
+	    std::make_shared<TcpConnection>(m_event_loop, m_fd, 128, m_remote_addr, TcpConnectionType::TcpConnectionByClient);
 	m_connection->setConnectionType(TcpConnectionType::TcpConnectionByClient);
 }
 TcpClient::~TcpClient() {
@@ -54,12 +54,12 @@ void TcpClient::connect(std::function<void()> done) {
 				    int error = 0;
 				    socklen_t error_len = sizeof(error);
 				    getsockopt(m_fd, SOL_SOCKET, SO_ERROR, &error, &error_len);
+					bool is_connect_succ = false;
 				    if (error == 0) {
 					    DEBUGLOG("connect [%s] success",
 					             m_remote_addr->toString().c_str());
-					    if (done) {
-						    done();
-					    }
+					    is_connect_succ = true;
+						m_connection->setState(TcpState::Connected);
 				    } else {
 					    ERRORLOG("connect [%s] failed, error = %d",
 					             m_remote_addr->toString().c_str(), error);
@@ -68,9 +68,13 @@ void TcpClient::connect(std::function<void()> done) {
 				    // 连接完后需要去掉可写事件的监听，不然会一直触发
 				    m_fd_event->cancle(FdEvent::TriggerEvent::OUT_EVENT);
 				    m_event_loop->addEpollEvent(m_fd_event);
+					// 如果连接成功才会执行回调函数
+					if (is_connect_succ && done) {
+						done();
+					}
 			    });
 			m_event_loop->addEpollEvent(m_fd_event);
-			
+
 			if (!m_event_loop->isLooping()) {
 				m_event_loop->loop();
 			}
@@ -84,11 +88,20 @@ void TcpClient::connect(std::function<void()> done) {
 // 异步的发送 Message 如果发送成功 done函数会被调用 函数的入参就是Message对象
 void TcpClient::writeMessage(
     rocket::AbstractProtocol::s_ptr message,
-    std::function<void(rocket::AbstractProtocol::s_ptr)> done) {}
+    std::function<void(rocket::AbstractProtocol::s_ptr)> done) {
+	// 1. 把message对象写入到connection的发送缓冲区， done也写入
+	// 2. 启动connection 可写事件监听
+	m_connection->pushSendMessage(message, done);
+	m_connection->listenWrite();
+}
 
 // 异步的读取 Message 如果读取成功 done函数会被调用 函数的入参就是Message对象
-void TcpClient::readMessage(
-    rocket::AbstractProtocol::s_ptr message,
-    std::function<void(rocket::AbstractProtocol::s_ptr)> done) {}
+void TcpClient::readMessage(const std::string& req_id,
+    std::function<void(rocket::AbstractProtocol::s_ptr)> done) {
+	// 1. 监听可读事件
+	// 2. 从buffer里decode解码 得到message对象, 判断其req_id相等，相等则成功，然后回调
+	m_connection->pushReadMessage(req_id, done);
+	m_connection->listenRead();
+	}
 
 } // namespace rocket

@@ -7,6 +7,7 @@
 #include "rocket/net/fd_event.h"
 #include "tcp_connection.h"
 #include <functional>
+#include <string>
 namespace rocket {
 
 class TcpClient {
@@ -26,7 +27,7 @@ public:
 
 	// 异步的读取 Message 如果读取成功 done函数会被调用
 	// 函数的入参就是Message对象
-	void readMessage(rocket::AbstractProtocol::s_ptr message,
+	void readMessage(const std::string& req_id,
 	                 std::function<void(rocket::AbstractProtocol::s_ptr)> done);
 
 private:
