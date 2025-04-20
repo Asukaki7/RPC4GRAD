@@ -13,7 +13,7 @@ namespace rocket {
 template <typename... Args>
 std::string formatString(const char* fmt, Args&&... args) {
 	int size = snprintf(nullptr, 0, fmt, args...);
-	std::string result;
+	std::string result{};
 	if (size > 0) {
 		result.resize(size);
 		snprintf(&result[0], size + 1, fmt, args...);

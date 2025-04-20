@@ -26,6 +26,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/rocket/common
     ${CMAKE_SOURCE_DIR}/rocket/net
     ${CMAKE_SOURCE_DIR}/rocket/net/TCP
+    ${CMAKE_SOURCE_DIR}/rocket/net/coder
 )
 
 # 查找依赖库
@@ -36,12 +37,15 @@ if(NOT PROTOBUF_LIB OR NOT TINYXML_LIB)
     message(FATAL_ERROR "Required libraries not found")
 endif()
 
+
 # 构建静态库 librocket.a
 file(GLOB COMMON_SOURCES rocket/common/*.cpp)
 file(GLOB NET_SOURCES rocket/net/*.cpp)
 file(GLOB NET_TCP_SOURCES rocket/net/TCP/*.cpp)
+file(GLOB CODER_SOURCES rocket/net/coder/*.cpp)
 
-add_library(rocket STATIC ${COMMON_SOURCES} ${NET_SOURCES} ${NET_TCP_SOURCES})
+add_library(rocket STATIC ${COMMON_SOURCES} ${NET_SOURCES} ${NET_TCP_SOURCES} ${CODER_SOURCES})
+
 target_link_libraries(rocket ${PROTOBUF_LIB} ${TINYXML_LIB})
 
 
@@ -50,7 +54,7 @@ set(TEST_CASES
     eventloop   # 对应 testcases/test_eventloop.cpp
     IOthread    # 对应 testcases/test_IOthread.cpp
     tcp         # 对应 testcases/test_tcp.cpp
-    client
+    client      # 对应 testcases/test_client.cpp
 )
 
 # 公共链接库配置

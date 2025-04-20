@@ -6,3 +6,4 @@ rocket/bin
 rocket/lib
 rocket/obj
 rocket/.cache
+rocket/CMakePresets.json

@@ -1,9 +1,11 @@
+#include "coder/tinyPB_protocol.h"
 #include "rocket/common/config.h"
 #include "rocket/common/log.h"
 #include "rocket/net/TCP/net_addr.h"
 #include "rocket/net/TCP/tcp_client.h"
-#include "rocket/net/abstract_protocol.h"
-#include "rocket/net/string_coder.h"
+#include "rocket/net/coder/abstract_coder.h"
+#include "rocket/net/coder/string_coder.h"
+#include "rocket/net/coder/tinyPB_coder.h"
 #include <arpa/inet.h>
 #include <cstdlib>
 #include <memory>
@@ -51,25 +53,24 @@ void test_tcp_client() {
 	rocket::TcpClient client(addr);
 	client.connect([addr, &client]() {
 		DEBUGLOG("connect to [%s] success", addr->toString().c_str());
-		std::shared_ptr<rocket::stringProtocol> message =
-		    std::make_shared<rocket::stringProtocol>();
-		message->info = "hello rocket";
+		std::shared_ptr<rocket::TinyPBProtocol> message =
+		    std::make_shared<rocket::TinyPBProtocol>();
 		message->setReqId("114514");
+		message->setMethodName("testConnect");
+		message->setPbBody("testpbdata");
 		client.writeMessage(message,
 		                    [](rocket::AbstractProtocol::s_ptr msg_ptr) {
 			                    DEBUGLOG("send message success");
 		                    });
 		client.readMessage(
 		    "114514", [](rocket::AbstractProtocol::s_ptr msg_ptr) {
-			    std::shared_ptr<rocket::stringProtocol> read_msg =
-			        std::dynamic_pointer_cast<rocket::stringProtocol>(msg_ptr);
-			    DEBUGLOG("reqid[%s], get response %s", read_msg->getReqId().c_str(),
-			             read_msg->info.c_str());
+			    std::shared_ptr<rocket::TinyPBProtocol> read_msg =
+			        std::dynamic_pointer_cast<rocket::TinyPBProtocol>(msg_ptr);
+			    DEBUGLOG("reqid[%s], methodName[%s], get pbBody [%s]",
+			             read_msg->getReqId().c_str(),
+			             read_msg->getMethodName().c_str(),
+			             read_msg->getPbBody().c_str());
 		    });
-		client.writeMessage(message,
-				[](rocket::AbstractProtocol::s_ptr msg_ptr) {
-					DEBUGLOG("send message 2222 success");
-		});
 	});
 }
 

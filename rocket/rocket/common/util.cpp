@@ -1,5 +1,7 @@
 #include "util.h"
 #include <cstddef>
+#include <cstring>
+#include <netinet/in.h>
 
 static int g_pid = 0;
 
@@ -26,6 +28,15 @@ int64_t getNowMs() {
 
 	return val.tv_sec * 1000 + val.tv_usec / 1000;
 }
+
+int32_t getInt32FromNetByte(const char *buf) {
+    int32_t re {};
+
+    std::memcpy(&re, buf, sizeof(re));
+
+    return ntohl(re);
+}
+
 } // namespace rocket
 
 /* 线程安全版本

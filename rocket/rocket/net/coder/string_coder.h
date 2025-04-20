@@ -1,8 +1,9 @@
 #ifndef ROCKET_NET_STRING_CODER_H
 #define ROCKET_NET_STRING_CODER_H
 
-#include "abstract_protocol.h"
-#include "rocket/net/abstract_coder.h"
+#include "rocket/net/coder/abstract_coder.h"
+#include "rocket/net/coder/abstract_protocol.h"
+#include "rocket/net/TCP/tcp_buffer.h"
 #include <cstddef>
 #include <memory>
 #include <string>
