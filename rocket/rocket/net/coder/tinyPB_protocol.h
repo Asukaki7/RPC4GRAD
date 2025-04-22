@@ -43,7 +43,7 @@ public:
 		m_err_info_len = err_info.length();
 	}
 
-	const std::string& getPbBody() const { return m_pb_body; }
+	std::string& getPbBody() { return m_pb_body; }
 	void setPbBody(const std::string& pb_body) { m_pb_body = pb_body; }
 
 

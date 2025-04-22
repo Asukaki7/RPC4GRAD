@@ -1,0 +1,34 @@
+#ifndef ROCKT_COMMON_ERROR_CODER_H
+#define ROCKT_COMMON_ERROR_CODER_H
+
+
+#ifndef SYS_ERROR_PREFIX
+#define SYS_ERROR_PREFIX(xx) 1000##xx
+#endif
+
+#ifndef RPC_ERROR_PREFIX
+#define RPC_ERROR_PREFIX(xx) 2000##xx
+#endif
+
+#ifndef USER_ERROR_PREFIX
+#define USER_ERROR_PREFIX(xx) 3000##xx
+#endif
+
+
+constexpr int ERROR_PEER_CLOSED = SYS_ERROR_PREFIX(0000); // 连接关闭
+constexpr int ERROR_FAILED_CONNECT = SYS_ERROR_PREFIX(0001); // 连接失败
+constexpr int ERROR_FAILED_REPLY = SYS_ERROR_PREFIX(0002); // 回复失败
+constexpr int ERROR_FAILED_DESERIALIZE = SYS_ERROR_PREFIX(0003); // 反序列化失败
+constexpr int ERROR_FAILED_SERIALIZE = SYS_ERROR_PREFIX(0004); // 序列化失败
+
+constexpr int ERROR_FAILED_ENCODE = SYS_ERROR_PREFIX(0005); // 编码失败
+constexpr int ERROR_FAILED_DECODE = SYS_ERROR_PREFIX(0006); // 解码失败
+
+constexpr int ERROR_RPC_CALL_TIMEOUT = RPC_ERROR_PREFIX(0007); // 调用超时
+
+constexpr int ERROR_SERVICE_NOT_FOUND = RPC_ERROR_PREFIX(0008); // 服务未找到
+constexpr int ERROR_METHOD_NOT_FOUND = RPC_ERROR_PREFIX(0009); // 方法未找到
+
+constexpr int ERROR_PARSE_SERVICE_NAME = RPC_ERROR_PREFIX(0010); // 解析服务名失败
+
+#endif

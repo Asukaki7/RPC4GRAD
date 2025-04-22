@@ -51,7 +51,7 @@ void TcpServer::onAccept() {
 	IOThread* io_thread = m_io_thread_group->getIOthread();
     TcpConnection::s_ptr connection = std::make_shared<TcpConnection>(
        	io_thread->geteventloop(), client_fd, 128,
-        remote_addr
+        remote_addr, m_local_addr
     );
     connection->setState(TcpState::Connected);
 

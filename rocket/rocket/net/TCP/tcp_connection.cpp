@@ -9,6 +9,7 @@
 #include "rocket/net/eventLoop.h"
 #include "rocket/net/fd_event.h"
 #include "rocket/net/fd_event_group.h"
+#include "rocket/net/rpc/rpc_dispatcher.h"
 #include <cstddef>
 #include <functional>
 #include <memory>
@@ -22,8 +23,10 @@ namespace rocket {
 
 TcpConnection::TcpConnection(
     EventLoop* event_loop, int fd, int buffer_size, NetAddr::s_ptr remote_addr,
+    NetAddr::s_ptr local_addr,
     TcpConnectionType type /* = TcpConnectionByServer*/)
-    : m_remote_addr(remote_addr)
+    : m_local_addr(local_addr)
+    , m_remote_addr(remote_addr)
     , m_event_loop(event_loop)
     , m_fd(fd)
     , m_state(TcpState::NotConnecetd)
@@ -34,10 +37,11 @@ TcpConnection::TcpConnection(
 	m_fd_event = FdEventGroup::getFdEventGroup()->getFdEvent(fd);
 	m_fd_event->setNonBlock();
 
-	m_coder = new TinyPBCoder();	
+	m_coder = new TinyPBCoder();
 
 	if (m_connection_type == TcpConnectionType::TcpConnectionByServer) {
 		listenRead();
+		m_dispatcher = std::make_shared<RpcDispatcher>();
 	}
 }
 
@@ -111,17 +115,22 @@ void TcpConnection::onRead() {
 void TcpConnection::execute() {
 	// 将 RPC 请求执行业务逻辑，获取 RPC 响应, 再把 RPC 响应发送回去
 	if (m_connection_type == TcpConnectionType::TcpConnectionByServer) {
-		std::vector<AbstractProtocol::s_ptr> result;
+		std::vector<AbstractProtocol::s_ptr> request_messages;
 		std::vector<AbstractProtocol::s_ptr> replay_result;
-		m_coder->decode(result, m_in_buffer);
+		m_coder->decode(request_messages, m_in_buffer);
 
-		for (size_t i = 0; i < result.size(); i++) {
+		for (size_t i = 0; i < request_messages.size(); i++) {
 			// 1. 针对每个请求调用rpc方法，获取响应message
 			// 2. 将相应message放入到发送缓冲区，监听可写事件回包
-			INFOLOG("success get request [%s] from client[%s]", result[i]->getReqId().c_str(), m_remote_addr->toString().c_str());
-			std::shared_ptr<TinyPBProtocol> response_message = std::make_shared<TinyPBProtocol>();
-			response_message->setPbBody("hello this is rocket rpc test");
-			response_message->setReqId(result[i]->getReqId());
+			INFOLOG("success get request [%s] from client[%s]",
+			        request_messages[i]->getReqId().c_str(),
+			        m_remote_addr->toString().c_str());
+			std::shared_ptr<TinyPBProtocol> response_message =
+			    std::make_shared<TinyPBProtocol>();
+			// response_message->setPbBody("hello this is rocket rpc test");
+			// response_message->setReqId(result[i]->getReqId());
+
+			m_dispatcher->dispatch(request_messages[i], response_message, this);
 			replay_result.emplace_back(response_message);
 		}
 
@@ -269,5 +278,9 @@ void TcpConnection::pushReadMessage(
     std::function<void(rocket::AbstractProtocol::s_ptr)> done) {
 	m_read_done.insert(std::make_pair(req_id, done));
 }
+
+NetAddr::s_ptr TcpConnection::getLocalAddr() { return m_local_addr; }
+
+NetAddr::s_ptr TcpConnection::getRemoteAddr() { return m_remote_addr; }
 
 } // namespace rocket

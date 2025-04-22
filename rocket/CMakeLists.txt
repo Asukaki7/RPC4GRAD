@@ -27,6 +27,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/rocket/net
     ${CMAKE_SOURCE_DIR}/rocket/net/TCP
     ${CMAKE_SOURCE_DIR}/rocket/net/coder
+    ${CMAKE_SOURCE_DIR}/rocket/net/rpc
 )
 
 # 查找依赖库
@@ -43,8 +44,9 @@ file(GLOB COMMON_SOURCES rocket/common/*.cpp)
 file(GLOB NET_SOURCES rocket/net/*.cpp)
 file(GLOB NET_TCP_SOURCES rocket/net/TCP/*.cpp)
 file(GLOB CODER_SOURCES rocket/net/coder/*.cpp)
+file(GLOB RPC_SOURCES rocket/net/rpc/*.cpp)
 
-add_library(rocket STATIC ${COMMON_SOURCES} ${NET_SOURCES} ${NET_TCP_SOURCES} ${CODER_SOURCES})
+add_library(rocket STATIC ${COMMON_SOURCES} ${NET_SOURCES} ${NET_TCP_SOURCES} ${CODER_SOURCES} ${RPC_SOURCES})
 
 target_link_libraries(rocket ${PROTOBUF_LIB} ${TINYXML_LIB})
 
@@ -92,6 +94,11 @@ install(DIRECTORY rocket/net/
 
 install(DIRECTORY rocket/net/TCP
     DESTINATION /usr/include/rocket/net/TCP
+    FILES_MATCHING PATTERN "*.h"
+)
+
+install(DIRECTORY rocket/net/rpc
+    DESTINATION /usr/include/rocket/net/rpc
     FILES_MATCHING PATTERN "*.h"
 )
 

@@ -1,6 +1,5 @@
 #include "rocket/net/TCP/tcp_client.h"
 #include "rocket/common/log.h"
-#include "rocket/net/TCP/tcp_connection.h"
 #include "rocket/net/eventLoop.h"
 #include "rocket/net/fd_event.h"
 #include "rocket/net/fd_event_group.h"
@@ -26,7 +25,7 @@ TcpClient::TcpClient(NetAddr::s_ptr remote_addr)
 	m_fd_event->setNonBlock();
 
 	m_connection = std::make_shared<TcpConnection>(
-	    m_event_loop, m_fd, 128, m_remote_addr,
+	    m_event_loop, m_fd, 128, m_remote_addr, nullptr,
 	    TcpConnectionType::TcpConnectionByClient);
 	m_connection->setConnectionType(TcpConnectionType::TcpConnectionByClient);
 }

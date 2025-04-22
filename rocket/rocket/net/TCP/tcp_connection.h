@@ -1,5 +1,6 @@
 #ifndef ROCKET_NET_TCP_TCP_CONNECTION_H
 #define ROCKET_NET_TCP_TCP_CONNECTION_H
+#pragma once
 
 #include "rocket/net/TCP/net_addr.h"
 #include "rocket/net/TCP/tcp_buffer.h"
@@ -7,6 +8,7 @@
 #include "rocket/net/coder/abstract_protocol.h"
 #include "rocket/net/eventLoop.h"
 #include "rocket/net/fd_event.h"
+#include "rocket/net/rpc/rpc_dispatcher.h"
 #include <functional>
 #include <map>
 #include <memory>
@@ -36,6 +38,7 @@ public:
 	TcpConnection(
 	    EventLoop* event_loop, int fd, int buffer_size,
 	    NetAddr::s_ptr remote_addr,
+		NetAddr::s_ptr local_addr,
 	    TcpConnectionType type = TcpConnectionType::TcpConnectionByServer);
 	~TcpConnection();
 	void onRead();
@@ -67,6 +70,10 @@ public:
 	void pushReadMessage(const std::string& req_id, 
 	                     std::function<void(rocket::AbstractProtocol::s_ptr)>);
 
+	NetAddr::s_ptr getLocalAddr();
+
+	NetAddr::s_ptr getRemoteAddr();
+
 private:
 	NetAddr::s_ptr m_local_addr;
 	NetAddr::s_ptr m_remote_addr;
@@ -93,6 +100,8 @@ private:
 
 	std::map<std::string, std::function<void(rocket::AbstractProtocol::s_ptr)>>
 	    m_read_done;
+
+	std::shared_ptr<RpcDispatcher> m_dispatcher;
 };
 
 } // namespace rocket
