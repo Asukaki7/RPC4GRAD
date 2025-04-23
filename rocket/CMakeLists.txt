@@ -57,6 +57,8 @@ set(TEST_CASES
     IOthread    # 对应 testcases/test_IOthread.cpp
     tcp         # 对应 testcases/test_tcp.cpp
     client      # 对应 testcases/test_client.cpp
+    rpc_client  # 对应 testcases/test_rpc_client.cpp
+    rpc_server  # 对应 testcases/test_rpc_server.cpp
 )
 
 # 公共链接库配置
@@ -69,10 +71,14 @@ foreach(test_case IN LISTS TEST_CASES)
     # 生成源文件路径（如 testcases/test_log.cpp）
     set(source_file "testcases/test_${test_case}.cpp")
     
-    # 添加可执行文件
-    add_executable(${target_name} ${source_file})
-    # 链接库
-    target_link_libraries(${target_name} ${TEST_LIBS})
+    if (${test_case} STREQUAL "rpc_client" OR ${test_case} STREQUAL "rpc_server")
+        add_executable(${target_name} ${source_file} testcases/order.pb.cpp)
+        target_link_libraries(${target_name} ${TEST_LIBS} )
+    else()
+        add_executable(${target_name} ${source_file})
+        target_link_libraries(${target_name} ${TEST_LIBS})
+    endif()
+    
 endforeach()
 
 

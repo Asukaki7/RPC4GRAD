@@ -11,6 +11,15 @@
 
 namespace rocket {
 
+static RpcDispatcher* g_rpc_dispatcher = nullptr;
+
+RpcDispatcher* RpcDispatcher::getRpcDispatcher() {
+	if (g_rpc_dispatcher == nullptr) {
+		g_rpc_dispatcher = new RpcDispatcher();
+	}
+	return g_rpc_dispatcher;
+}
+
 void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,
                              AbstractProtocol::s_ptr response,
                              TcpConnection* connection) {
@@ -25,7 +34,7 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,
 
 	std::string service_name{};
 	std::string method_name{};
-	if (parseServiceFullName(method_full_name, service_name, method_name)) {
+	if (!parseServiceFullName(method_full_name, service_name, method_name)) {
 		ERRORLOG(
 		    "req_id [%s] | parse service name error, method_full_name : [%s]",
 		    request_protocol->getReqId().c_str(), method_full_name.c_str());
@@ -59,7 +68,7 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,
 	google::protobuf::Message* req_msg =
 	    service->GetRequestPrototype(method).New();
 	// 反序列化，将pb_data 反序列化为req_msg
-	if (req_msg->ParseFromString(request_protocol->getPbBody())) {
+	if (!req_msg->ParseFromString(request_protocol->getPbBody())) {
 		ERRORLOG("req_id [%s] | deserialize request error, pb body : [%s]",
 		         request_protocol->getReqId().c_str(),
 		         request_protocol->getPbBody().c_str());
@@ -106,7 +115,7 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,
 
 	response_protocol->setErrCode(0);
 
-	INFOLOG("%s | dispatch success, request[%s], response[%s]",
+	INFOLOG("req_id [%s] | dispatch success, request[%s], response[%s]",
 	        request_protocol->getReqId().c_str(),
 	        req_msg->ShortDebugString().c_str(),
 	        rsp_msg->ShortDebugString().c_str());

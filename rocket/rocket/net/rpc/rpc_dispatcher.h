@@ -14,6 +14,9 @@ class TcpConnection;
 
 class RpcDispatcher {
 public:
+	static RpcDispatcher* getRpcDispatcher();
+
+public:
 	typedef std::shared_ptr<google::protobuf::Service> service_sptr;
 
 	void dispatch(AbstractProtocol::s_ptr request,

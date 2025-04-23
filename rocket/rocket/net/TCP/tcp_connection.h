@@ -101,7 +101,7 @@ private:
 	std::map<std::string, std::function<void(rocket::AbstractProtocol::s_ptr)>>
 	    m_read_done;
 
-	std::shared_ptr<RpcDispatcher> m_dispatcher;
+	
 };
 
 } // namespace rocket
