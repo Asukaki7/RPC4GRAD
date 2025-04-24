@@ -67,7 +67,7 @@ public:
 	void pushSendMessage(AbstractProtocol::s_ptr,
 	                     std::function<void(rocket::AbstractProtocol::s_ptr)>);
 
-	void pushReadMessage(const std::string& req_id, 
+	void pushReadMessage(const std::string& msg_id, 
 	                     std::function<void(rocket::AbstractProtocol::s_ptr)>);
 
 	NetAddr::s_ptr getLocalAddr();
@@ -93,7 +93,7 @@ private:
 	TcpConnectionType m_connection_type{
 	    TcpConnectionType::TcpConnectionByServer};
 
-	// key: req_id value: callback 这里的req_id是唯一标识符
+	// key: msg_id value: callback 这里的msg_id是唯一标识符
 	std::vector<std::pair<AbstractProtocol::s_ptr,
 	                      std::function<void(rocket::AbstractProtocol::s_ptr)>>>
 	    m_write_done;

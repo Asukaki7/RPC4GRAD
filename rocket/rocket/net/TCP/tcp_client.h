@@ -27,7 +27,7 @@ public:
 
 	// 异步的读取 Message 如果读取成功 done函数会被调用
 	// 函数的入参就是Message对象
-	void readMessage(const std::string& req_id,
+	void readMessage(const std::string& msg_id,
 	                 std::function<void(rocket::AbstractProtocol::s_ptr)> done);
 
 private:

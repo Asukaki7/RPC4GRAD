@@ -6,7 +6,7 @@ void RpcController::Reset() {
 
 	m_error_code = 0;
 	m_error_info.clear();
-	m_req_id.clear();
+	m_msg_id.clear();
 	m_local_addr.reset();
 	m_remote_addr.reset();
 	m_is_failed = false;
@@ -38,15 +38,16 @@ void RpcController::SetError(int32_t error_code,
                              const std::string& error_info) {
 	m_error_code = error_code;
 	m_error_info = error_info;
+	m_is_failed = true;
 }
 
 int32_t RpcController::GetErrorCode() const { return m_error_code; }
 
 std::string RpcController::GetErrorInfo() const { return m_error_info; }
 
-void RpcController::SetReqId(const std::string& req_id) { m_req_id = req_id; }
+void RpcController::SetMsgId(const std::string& msg_id) { m_msg_id = msg_id; }
 
-std::string RpcController::GetReqId() const { return m_req_id; }
+std::string RpcController::GetMsgId() const { return m_msg_id; }
 
 void RpcController::SetLocalAddr(NetAddr::s_ptr local_addr) {
 	m_local_addr = local_addr;

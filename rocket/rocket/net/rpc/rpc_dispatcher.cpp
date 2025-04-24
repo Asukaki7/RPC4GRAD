@@ -29,15 +29,15 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,
 	    std::dynamic_pointer_cast<TinyPBProtocol>(response);
 	std::string method_full_name = request_protocol->getMethodName();
 
-	response_protocol->setReqId(request_protocol->getReqId());
+	response_protocol->setMsgId(request_protocol->getMsgId());
 	response_protocol->setMethodName(request_protocol->getMethodName());
 
 	std::string service_name{};
 	std::string method_name{};
 	if (!parseServiceFullName(method_full_name, service_name, method_name)) {
 		ERRORLOG(
-		    "req_id [%s] | parse service name error, method_full_name : [%s]",
-		    request_protocol->getReqId().c_str(), method_full_name.c_str());
+		    "msg_id [%s] | parse service name error, method_full_name : [%s]",
+		    request_protocol->getMsgId().c_str(), method_full_name.c_str());
 		setTinyPBErrorCode(response_protocol, ERROR_PARSE_SERVICE_NAME,
 		                   "parse service name error");
 		return;
@@ -45,8 +45,8 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,
 
 	auto it = m_service_map.find(service_name);
 	if (it == m_service_map.end()) {
-		ERRORLOG("req_id [%s] | service not found, service_name : [%s]",
-		         request_protocol->getReqId().c_str(), service_name.c_str());
+		ERRORLOG("msg_id [%s] | service not found, service_name : [%s]",
+		         request_protocol->getMsgId().c_str(), service_name.c_str());
 		setTinyPBErrorCode(response_protocol, ERROR_SERVICE_NOT_FOUND,
 		                   "service not found");
 		return;
@@ -56,9 +56,9 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,
 	const google::protobuf::MethodDescriptor* method =
 	    service->GetDescriptor()->FindMethodByName(method_name);
 	if (method == nullptr) {
-		ERRORLOG("req_id [%s] | method not found, method_name : [%s] in "
+		ERRORLOG("msg_id [%s] | method not found, method_name : [%s] in "
 		         "service [%s]",
-		         request_protocol->getReqId().c_str(), method_name.c_str(),
+		         request_protocol->getMsgId().c_str(), method_name.c_str(),
 		         service_name.c_str());
 		setTinyPBErrorCode(response_protocol, ERROR_METHOD_NOT_FOUND,
 		                   "method not found");
@@ -69,8 +69,8 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,
 	    service->GetRequestPrototype(method).New();
 	// 反序列化，将pb_data 反序列化为req_msg
 	if (!req_msg->ParseFromString(request_protocol->getPbBody())) {
-		ERRORLOG("req_id [%s] | deserialize request error, pb body : [%s]",
-		         request_protocol->getReqId().c_str(),
+		ERRORLOG("msg_id [%s] | deserialize request error, pb body : [%s]",
+		         request_protocol->getMsgId().c_str(),
 		         request_protocol->getPbBody().c_str());
 		setTinyPBErrorCode(response_protocol, ERROR_FAILED_DESERIALIZE,
 		                   "deserialize request error");
@@ -81,8 +81,8 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,
 		return;
 	}
 
-	INFOLOG("req_id [%s] | get rpc request[%s]",
-	        request_protocol->getReqId().c_str(),
+	INFOLOG("msg_id [%s] | get rpc request[%s]",
+	        request_protocol->getMsgId().c_str(),
 	        req_msg->ShortDebugString().c_str());
 
 	google::protobuf::Message* rsp_msg =
@@ -92,13 +92,13 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,
 
 	rpc_controller.SetLocalAddr(connection->getLocalAddr());
 	rpc_controller.SetRemoteAddr(connection->getRemoteAddr());
-	rpc_controller.SetReqId(request_protocol->getReqId());
+	rpc_controller.SetMsgId(request_protocol->getMsgId());
 
 	service->CallMethod(method, &rpc_controller, req_msg, rsp_msg, nullptr);
 
 	if (!rsp_msg->SerializeToString(&(response_protocol->getPbBody()))) {
-		ERRORLOG("req_id [%s] | serialize response error, origin message [%s]",
-		         request_protocol->getReqId().c_str(),
+		ERRORLOG("msg_id [%s] | serialize response error, origin message [%s]",
+		         request_protocol->getMsgId().c_str(),
 		         rsp_msg->ShortDebugString().c_str());
 		setTinyPBErrorCode(response_protocol, ERROR_FAILED_SERIALIZE,
 		                   "serialize response error");
@@ -115,8 +115,8 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,
 
 	response_protocol->setErrCode(0);
 
-	INFOLOG("req_id [%s] | dispatch success, request[%s], response[%s]",
-	        request_protocol->getReqId().c_str(),
+	INFOLOG("msg_id [%s] | dispatch success, request[%s], response[%s]",
+	        request_protocol->getMsgId().c_str(),
 	        req_msg->ShortDebugString().c_str(),
 	        rsp_msg->ShortDebugString().c_str());
 	if (rsp_msg != nullptr) {

@@ -97,12 +97,12 @@ void TcpClient::writeMessage(
 
 // 异步的读取 Message 如果读取成功 done函数会被调用 函数的入参就是Message对象
 void TcpClient::readMessage(
-    const std::string& req_id,
+    const std::string& msg_id,
     std::function<void(rocket::AbstractProtocol::s_ptr)> done) {
 	// 1. 监听可读事件
 	// 2. 从buffer里decode解码 得到message对象,
-	// 判断其req_id相等，相等则成功，然后回调
-	m_connection->pushReadMessage(req_id, done);
+	// 判断其msg_id相等，相等则成功，然后回调
+	m_connection->pushReadMessage(msg_id, done);
 	m_connection->listenRead();
 }
 

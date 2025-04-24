@@ -27,7 +27,7 @@ void test_tcp_client() {
 		DEBUGLOG("connect to [%s] success", addr->toString().c_str());
 		std::shared_ptr<rocket::TinyPBProtocol> message =
 		    std::make_shared<rocket::TinyPBProtocol>();
-		message->setReqId("99998888");
+		message->setMsgId("99998888");
 		message->setPbBody("testpbdata");
 
 		makeOrderRequest request;
@@ -51,8 +51,8 @@ void test_tcp_client() {
 		    "99998888", [](rocket::AbstractProtocol::s_ptr msg_ptr) {
 			    std::shared_ptr<rocket::TinyPBProtocol> read_msg =
 			        std::dynamic_pointer_cast<rocket::TinyPBProtocol>(msg_ptr);
-			    DEBUGLOG("reqid[%s], methodName[%s], get pbBody [%s]",
-			             read_msg->getReqId().c_str(),
+			    DEBUGLOG("MsgId[%s], methodName[%s], get pbBody [%s]",
+			             read_msg->getMsgId().c_str(),
 			             read_msg->getMethodName().c_str(),
 			             read_msg->getPbBody().c_str());
 			    makeOrderResponse response;

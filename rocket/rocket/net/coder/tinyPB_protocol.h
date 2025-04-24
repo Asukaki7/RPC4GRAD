@@ -17,8 +17,8 @@ public:
 	int32_t getPkLength() const { return m_pk_length; }
 	void setPkLength(int32_t pk_length) { m_pk_length = pk_length; }
 
-	int32_t getReqIdLen() const { return m_req_id_len; }
-	void setReqIdLen(int32_t req_id_len) { m_req_id_len = req_id_len; }
+	int32_t getMsgIdLen() const { return m_msg_id_len; }
+	void setMsgIdLen(int32_t msg_id_len) { m_msg_id_len = msg_id_len; }
 
 	int32_t getMethodNameLen() const { return m_method_name_len; }
 	void setMethodNameLen(int32_t method_name_len) {
@@ -58,8 +58,8 @@ private:
 	int32_t m_pk_length{0};
 
 	//* 请求字段长度
-	int32_t m_req_id_len{0};
-	// req_id 继承自AbstractCoder
+	int32_t m_msg_id_len{0};
+	// msg_id 继承自AbstractCoder
 
 	//* 方法名长度及方法名
 	int32_t m_method_name_len{0};
