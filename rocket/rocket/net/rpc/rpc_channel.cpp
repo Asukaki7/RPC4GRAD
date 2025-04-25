@@ -19,8 +19,12 @@
 namespace rocket {
 
 RpcChannel::RpcChannel(NetAddr::s_ptr remote_addr)
-    : m_remote_addr(remote_addr) {}
-RpcChannel::~RpcChannel() {}
+    : m_remote_addr(remote_addr) {
+	m_client = std::make_shared<TcpClient>(m_remote_addr);
+}
+
+RpcChannel::~RpcChannel() { INFOLOG("RpcChannel::~RpcChannel()"); }
+
 void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
                             google::protobuf::RpcController* controller,
                             const google::protobuf::Message* request,
@@ -46,7 +50,15 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
 	INFOLOG("[%s] | callmethod name [%s]", req_protocol->getMsgId().c_str(),
 	        req_protocol->getMethodName().c_str());
 
-	// request 序列化
+	if (!m_is_init) {
+		std::string err_info = "RpcChannel not inited";
+		my_controller->SetError(ERROR_RPC_CHANNEL_NOT_INIT, err_info);
+		ERRORLOG("[%s] | %s, rpc channel not inited",
+		         req_protocol->getMsgId().c_str(), err_info.c_str());
+		return;
+	}
+
+	// 1. request 序列化
 	if (!request->SerializeToString(&req_protocol->getPbBody())) {
 		std::string err_info = "failed to serialize request";
 		my_controller->SetError(ERROR_FAILED_SERIALIZE, err_info);
@@ -56,31 +68,99 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
 		return;
 	}
 
-	// 发送rpc请求
-	TcpClient client(m_remote_addr);
+	s_ptr channel = shared_from_this();
 
-	client.connect([&client, req_protocol, done]() {
-		client.writeMessage(req_protocol, [&client, req_protocol,
-		                                   done](AbstractProtocol::s_ptr) {
-			INFOLOG("[%s] | send request success. call method name [%s]",
-			        req_protocol->getMsgId().c_str(),
-			        req_protocol->getMethodName().c_str());
+	// 2. 发送rpc请求
 
-			client.readMessage(req_protocol->getMsgId(), [done](
-			                                                 AbstractProtocol::
-			                                                     s_ptr msg) {
-				std::shared_ptr<rocket::TinyPBProtocol> rsp_protocol =
-				    std::dynamic_pointer_cast<rocket::TinyPBProtocol>(msg);
-				INFOLOG(
-				    "[%s] | success get rpc response, call method name [%s]",
-				    rsp_protocol->getMsgId().c_str(),
-				    rsp_protocol->getMethodName().c_str());
+	m_client->connect([req_protocol, channel]() mutable {
+		channel->m_client->writeMessage(
+		    req_protocol,
+		    [channel, req_protocol](AbstractProtocol::s_ptr) mutable {
+			    INFOLOG("[%s] | send request success. call method name [%s]",
+			            req_protocol->getMsgId().c_str(),
+			            req_protocol->getMethodName().c_str());
 
-				if (done) {
-					done->Run();
-				}
-			});
-		});
+			    channel->m_client->readMessage(
+			        req_protocol->getMsgId(),
+			        [channel](AbstractProtocol::s_ptr msg) mutable {
+				        std::shared_ptr<rocket::TinyPBProtocol> rsp_protocol =
+				            std::dynamic_pointer_cast<rocket::TinyPBProtocol>(
+				                msg);
+				        INFOLOG("[%s] | success get rpc response, call method "
+				                "name [%s]",
+				                rsp_protocol->getMsgId().c_str(),
+				                rsp_protocol->getMethodName().c_str());
+
+						auto my_controller = dynamic_cast<RpcController*>(channel->getController());
+						// 3. 反序列化response
+						if (channel->getResponse()->ParseFromString(rsp_protocol->getPbBody())) {
+							INFOLOG("[%s] | success parse response, call method "
+							"name [%s]",
+							rsp_protocol->getMsgId().c_str(),
+							rsp_protocol->getMethodName().c_str());
+						} else {
+							ERRORLOG("[%s] | failed deserialize response, call method "
+							"name [%s]",
+							rsp_protocol->getMsgId().c_str(),
+							rsp_protocol->getMethodName().c_str());
+							my_controller->SetError(ERROR_FAILED_DESERIALIZE, "failed deserialize response");
+							channel.reset();
+							return;
+						}
+						
+						if (rsp_protocol->getErrCode() != 0) {
+							ERRORLOG("[%s] | call rpc method [%s] failed, error code [%d], error info [%s]",
+							rsp_protocol->getMsgId().c_str(),
+							rsp_protocol->getMethodName().c_str(),
+							rsp_protocol->getErrCode(),
+							rsp_protocol->getErrInfo().c_str());
+							my_controller->SetError(rsp_protocol->getErrCode(), rsp_protocol->getErrInfo());
+							channel.reset();
+							return;
+						}
+
+						INFOLOG("[%s] | call rpc method [%s] success, response [%s]",
+						rsp_protocol->getMsgId().c_str(),
+						rsp_protocol->getMethodName().c_str(),
+						channel->getResponse()->ShortDebugString().c_str());
+
+						// 4. 执行回调函数
+				        if (channel->getClosure() != nullptr) {
+					        channel->getClosure()->Run();
+				        }
+						channel.reset();
+			        });
+		    });
 	});
 }
+
+void RpcChannel::Init(controller_s_ptr controller, message_s_ptr request,
+                      message_s_ptr response, closure_s_ptr closure) {
+
+	if (!m_is_init) {
+		m_controller = controller;
+		m_request = request;
+		m_response = response;
+		m_closure = closure;
+		m_is_init = true;
+	} else {
+		ERRORLOG("RpcChannel already inited");
+		return;
+	}
+}
+
+google::protobuf::RpcController* RpcChannel::getController() const {
+	return m_controller.get();
+}
+google::protobuf::Message* RpcChannel::getRequest() const {
+	return m_request.get();
+}
+google::protobuf::Message* RpcChannel::getResponse() const {
+	return m_response.get();
+}
+google::protobuf::Closure* RpcChannel::getClosure() const {
+	return m_closure.get();
+}
+TcpClient* RpcChannel::getClient() const { return m_client.get(); }
+
 } // namespace rocket

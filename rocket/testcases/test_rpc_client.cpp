@@ -8,6 +8,9 @@
 #include "rocket/net/coder/tinyPB_coder.h"
 #include "rocket/net/coder/tinyPB_protocol.h"
 #include "rocket/net/rpc/rpc_dispatcher.h"
+#include "rpc/rpc_channel.h"
+#include "rpc/rpc_closure.h"
+#include "rpc/rpc_controller.h"
 #include "testcases/order.pb.h"
 #include <arpa/inet.h>
 #include <cstdlib>
@@ -72,15 +75,35 @@ void test_tcp_client() {
 	});
 }
 
-void test_tcp_server() {
+void test_rpc_channel() {
 	rocket::IPNetAddr::s_ptr addr =
 	    std::make_shared<rocket::IPNetAddr>("127.0.0.1", 12345);
+	std::shared_ptr<rocket::RpcChannel> channel = std::make_shared<rocket::RpcChannel>(addr);
+	
+	
 
-	DEBUGLOG("create addr %s", addr->toString().c_str());
+	std::shared_ptr<makeOrderRequest> request = std::make_shared<makeOrderRequest>();
+	request->set_price(100);
+	request->set_good("apple");
 
-	rocket::TcpServer tcp_server(addr);
+	std::shared_ptr<makeOrderResponse> response = std::make_shared<makeOrderResponse>();
+	std::shared_ptr<rocket::RpcController> controller = std::make_shared<rocket::RpcController>();
+	controller->SetMsgId("99998888");
 
-	tcp_server.start();
+	std::shared_ptr<rocket::RpcClosure> done = std::make_shared<rocket::RpcClosure>([request, response, channel]() mutable {
+		DEBUGLOG("request: %s, response: %s", request->ShortDebugString().c_str(), response->ShortDebugString().c_str());
+		INFOLOG("now exit eventLoop");
+		channel->getClient()->stop();
+		channel.reset();
+	});
+
+
+	channel->Init(controller, request, response, done);
+
+	Order_Stub stub(channel.get());
+	stub.makeOrder(controller.get(), request.get(), response.get(), done.get());
+
+	DEBUGLOG("response: %s", response->DebugString().c_str());
 }
 
 int main() {
@@ -89,7 +112,9 @@ int main() {
 
 	rocket::Logger::InitGlobalLogger();
 
-	test_tcp_client();
+	//test_tcp_client();
+	test_rpc_channel();
+	INFOLOG("test rpc channel end");
 
 	return 0;
 }

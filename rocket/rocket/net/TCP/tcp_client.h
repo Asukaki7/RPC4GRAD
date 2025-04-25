@@ -2,15 +2,17 @@
 #define ROCKET_NET_TCP_TCP_CLIENT_H
 
 #include "rocket/net/TCP/net_addr.h"
+#include "rocket/net/TCP/tcp_connection.h"
 #include "rocket/net/coder/abstract_protocol.h"
 #include "rocket/net/eventLoop.h"
 #include "rocket/net/fd_event.h"
-#include "rocket/net/TCP/tcp_connection.h"
 #include <functional>
 #include <string>
 namespace rocket {
 
 class TcpClient {
+public:
+	typedef std::shared_ptr<TcpClient> s_ptr;
 
 public:
 	TcpClient(NetAddr::s_ptr remote_addr);
@@ -30,6 +32,7 @@ public:
 	void readMessage(const std::string& msg_id,
 	                 std::function<void(rocket::AbstractProtocol::s_ptr)> done);
 
+	void stop();
 private:
 	NetAddr::s_ptr m_remote_addr{nullptr};
 	EventLoop* m_event_loop{nullptr};

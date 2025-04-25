@@ -30,5 +30,6 @@ constexpr int ERROR_SERVICE_NOT_FOUND = RPC_ERROR_PREFIX(0008); // 服务未找�
 constexpr int ERROR_METHOD_NOT_FOUND = RPC_ERROR_PREFIX(0009); // 方法未找到
 
 constexpr int ERROR_PARSE_SERVICE_NAME = RPC_ERROR_PREFIX(0010); // 解析服务名失败
-
+constexpr int ERROR_RPC_CHANNEL_NOT_INIT = RPC_ERROR_PREFIX(0011); // rpc channel未初始化
+constexpr int ERROR_RPC_CHANNEL_ALREADY_INIT = RPC_ERROR_PREFIX(0012); // rpc channel已初始化
 #endif

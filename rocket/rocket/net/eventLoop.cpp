@@ -147,7 +147,10 @@ void EventLoop::wakeup() {
 	m_wakeup_fd_event->wakeup();
 }
 
-void EventLoop::stop() { m_stop_flag = true; }
+void EventLoop::stop() {
+	m_stop_flag = true;
+	wakeup();
+}
 
 void EventLoop::dealWakeup() {}
 
@@ -221,9 +224,6 @@ EventLoop* EventLoop::getCurrentEventLoop() {
 	return t_current_eventloop;
 }
 
-
-bool EventLoop::isLooping() const {
-	return m_is_looping;
-}
+bool EventLoop::isLooping() const { return m_is_looping; }
 
 } // namespace rocket

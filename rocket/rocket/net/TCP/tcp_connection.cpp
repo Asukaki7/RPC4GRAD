@@ -46,8 +46,7 @@ TcpConnection::TcpConnection(
 }
 
 TcpConnection::~TcpConnection() {
-	DEBUGLOG("TcpConnection destructor, addr[%s], clientfd[%d]",
-	         m_local_addr->toString().c_str(), m_fd);
+	
 	if (m_coder) {
 		delete m_coder;
 		m_coder = nullptr;
