@@ -126,6 +126,7 @@ void EventLoop::loop() {
 				epoll_event trigger_event = result_events[i];
 				auto fd_event = static_cast<FdEvent*>(trigger_event.data.ptr);
 				if (fd_event == nullptr) {
+					ERRORLOG("fd_event is nullptr, continue");
 					continue;
 				}
 				if (trigger_event.events & EPOLLIN) {
@@ -136,6 +137,18 @@ void EventLoop::loop() {
 					DEBUGLOG("fd %d trigger EPOLLOUT event", fd_event->getFd());
 					addTask(
 					    fd_event->handler(FdEvent::TriggerEvent::OUT_EVENT));
+				}
+
+				// EPOLLHUP & EPOLLERR 事件
+				if ((trigger_event.events & EPOLLERR)) {
+					DEBUGLOG("fd %d trigger EPOLLHUP event", fd_event->getFd());
+					// 删除出错的套接字
+					deleteEpollEvent(fd_event);
+					if (fd_event->handler(FdEvent::ERROR_EVENT) != nullptr) {
+						DEBUGLOG("fd %d add error callback", fd_event->getFd());
+						addTask(fd_event->handler(
+						    FdEvent::TriggerEvent::ERROR_EVENT));
+					}
 				}
 			}
 		}

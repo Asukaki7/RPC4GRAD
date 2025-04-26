@@ -73,64 +73,87 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
 	// 2. 发送rpc请求
 
 	m_client->connect([req_protocol, channel]() mutable {
-		channel->m_client->writeMessage(
-		    req_protocol,
-		    [channel, req_protocol](AbstractProtocol::s_ptr) mutable {
-			    INFOLOG("[%s] | send request success. call method name [%s]",
-			            req_protocol->getMsgId().c_str(),
-			            req_protocol->getMethodName().c_str());
+		auto my_controller =
+		    dynamic_cast<RpcController*>(channel->getController());
+		if (channel->m_client->getConnectErrorCode() != 0) {
+			my_controller->SetError(channel->m_client->getConnectErrorCode(),
+			                        channel->m_client->getConnectErrorMsg());
+			ERRORLOG("%s | connect error, error code[%d], error info[%s], peer "
+			         "addr[%s]",
+			         req_protocol->getMsgId().c_str(),
+			         my_controller->GetErrorCode(),
+			         my_controller->GetErrorInfo().c_str(),
+			         channel->m_client->getRemoteAddr()->toString().c_str());
+			return;
+		}
 
-			    channel->m_client->readMessage(
-			        req_protocol->getMsgId(),
-			        [channel](AbstractProtocol::s_ptr msg) mutable {
-				        std::shared_ptr<rocket::TinyPBProtocol> rsp_protocol =
-				            std::dynamic_pointer_cast<rocket::TinyPBProtocol>(
-				                msg);
-				        INFOLOG("[%s] | success get rpc response, call method "
-				                "name [%s]",
-				                rsp_protocol->getMsgId().c_str(),
-				                rsp_protocol->getMethodName().c_str());
+		INFOLOG("[%s] | connect success, send request, remote addr [%s], local "
+		        "addr [%s]",
+		        req_protocol->getMsgId().c_str(),
+		        channel->m_client->getRemoteAddr()->toString().c_str(),
+		        channel->m_client->getLocalAddr()->toString().c_str());
 
-						auto my_controller = dynamic_cast<RpcController*>(channel->getController());
-						// 3. 反序列化response
-						if (channel->getResponse()->ParseFromString(rsp_protocol->getPbBody())) {
-							INFOLOG("[%s] | success parse response, call method "
-							"name [%s]",
-							rsp_protocol->getMsgId().c_str(),
-							rsp_protocol->getMethodName().c_str());
-						} else {
-							ERRORLOG("[%s] | failed deserialize response, call method "
-							"name [%s]",
-							rsp_protocol->getMsgId().c_str(),
-							rsp_protocol->getMethodName().c_str());
-							my_controller->SetError(ERROR_FAILED_DESERIALIZE, "failed deserialize response");
-							channel.reset();
-							return;
-						}
-						
-						if (rsp_protocol->getErrCode() != 0) {
-							ERRORLOG("[%s] | call rpc method [%s] failed, error code [%d], error info [%s]",
-							rsp_protocol->getMsgId().c_str(),
-							rsp_protocol->getMethodName().c_str(),
-							rsp_protocol->getErrCode(),
-							rsp_protocol->getErrInfo().c_str());
-							my_controller->SetError(rsp_protocol->getErrCode(), rsp_protocol->getErrInfo());
-							channel.reset();
-							return;
-						}
+		channel->m_client->writeMessage(req_protocol, [channel, req_protocol,
+		                                               my_controller](
+		                                                  AbstractProtocol::
+		                                                      s_ptr) mutable {
+			INFOLOG("[%s] | send request success. call method name [%s]",
+			        req_protocol->getMsgId().c_str(),
+			        req_protocol->getMethodName().c_str());
 
-						INFOLOG("[%s] | call rpc method [%s] success, response [%s]",
-						rsp_protocol->getMsgId().c_str(),
-						rsp_protocol->getMethodName().c_str(),
-						channel->getResponse()->ShortDebugString().c_str());
+			channel->m_client->readMessage(
+			    req_protocol->getMsgId(),
+			    [channel, my_controller](AbstractProtocol::s_ptr msg) mutable {
+				    std::shared_ptr<rocket::TinyPBProtocol> rsp_protocol =
+				        std::dynamic_pointer_cast<rocket::TinyPBProtocol>(msg);
+				    INFOLOG(
+				        "[%s] | success get rpc response, call method "
+				        "name [%s], remote addr [%s], local addr [%s]",
+				        rsp_protocol->getMsgId().c_str(),
+				        rsp_protocol->getMethodName().c_str(),
+				        channel->m_client->getRemoteAddr()->toString().c_str(),
+				        channel->m_client->getLocalAddr()->toString().c_str());
 
-						// 4. 执行回调函数
-				        if (channel->getClosure() != nullptr) {
-					        channel->getClosure()->Run();
-				        }
-						channel.reset();
-			        });
-		    });
+				    // 3. 反序列化response
+				    if (!(channel->getResponse()->ParseFromString(
+				            rsp_protocol->getPbBody()))) {
+					    ERRORLOG(
+					        "[%s] | failed deserialize response, call method "
+					        "name [%s]",
+					        rsp_protocol->getMsgId().c_str(),
+					        rsp_protocol->getMethodName().c_str());
+					    my_controller->SetError(ERROR_FAILED_DESERIALIZE,
+					                            "failed deserialize response");
+					    channel.reset();
+					    return;
+				    }
+
+				    if (rsp_protocol->getErrCode() != 0) {
+					    ERRORLOG("[%s] | call rpc method [%s] failed, error "
+					             "code [%d], error info [%s]",
+					             rsp_protocol->getMsgId().c_str(),
+					             rsp_protocol->getMethodName().c_str(),
+					             rsp_protocol->getErrCode(),
+					             rsp_protocol->getErrInfo().c_str());
+					    my_controller->SetError(rsp_protocol->getErrCode(),
+					                            rsp_protocol->getErrInfo());
+					    channel.reset();
+					    return;
+				    }
+
+				    INFOLOG(
+				        "[%s] | call rpc method [%s] success, response [%s]",
+				        rsp_protocol->getMsgId().c_str(),
+				        rsp_protocol->getMethodName().c_str(),
+				        channel->getResponse()->ShortDebugString().c_str());
+
+				    // 4. 执行回调函数
+				    if (channel->getClosure() != nullptr) {
+					    channel->getClosure()->Run();
+				    }
+				    channel.reset();
+			    });
+		});
 	});
 }
 
