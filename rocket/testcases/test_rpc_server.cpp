@@ -25,6 +25,8 @@ public:
 	               const ::makeOrderRequest* request,
 	               ::makeOrderResponse* response,
 	               ::google::protobuf::Closure* done) override {
+		DEBUGLOG("make order begin sleep");
+		DEBUGLOG("make order end sleep");
 		if (request->price() < 10) {
 			response->set_ret_code(-1);
 			response->set_res_info("short balance");

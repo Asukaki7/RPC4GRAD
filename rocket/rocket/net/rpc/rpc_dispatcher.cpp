@@ -152,6 +152,7 @@ bool RpcDispatcher::parseServiceFullName(const std::string& full_name,
 	        method_name.c_str());
 	return true;
 }
+
 void RpcDispatcher::setTinyPBErrorCode(std::shared_ptr<TinyPBProtocol> msg,
                                        int err_code,
                                        const std::string& err_info) {

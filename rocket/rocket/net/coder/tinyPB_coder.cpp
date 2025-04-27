@@ -75,7 +75,7 @@ void TinyPBCoder::decode(std::vector<AbstractProtocol::s_ptr>& out_message,
 		}
 
 		if (parse_success) {
-			buffer->moveReadIndex(pk_len);
+			buffer->moveReadIndex(end_index - start_index + 1);
 			TinyPBProtocol::s_ptr message = std::make_shared<TinyPBProtocol>();
 
 			message->setPkLength(pk_len);
@@ -150,16 +150,16 @@ void TinyPBCoder::decode(std::vector<AbstractProtocol::s_ptr>& out_message,
 			memcpy(&error_info[0], &tmp[error_info_index],
 			            message->getErrInfoLen());
 			message->setErrInfo(
-			    std::string(error_info, message->getErrInfoLen()));
+			    std::string(error_info));
 			DEBUGLOG("parse error_info = %s", message->getErrInfo().c_str());
 
 			int pb_body_len = message->getPkLength() - message->getMsgIdLen() -
 			                  message->getMethodNameLen() -
-			                  -message->getErrInfoLen() - 2 - 24;
+			                  - message->getErrInfoLen() - 2 - 24;
 
 			int pb_body_index = error_info_index + message->getErrInfoLen();
 			message->setPbBody(std::string(&tmp[pb_body_index], pb_body_len));
-			DEBUGLOG("parse pb_body = %s", message->getPbBody().c_str());
+			DEBUGLOG("parse pb_body = [%s]", message->getPbBody().c_str());
 			
 			// TODO: 计算校验和
 
@@ -176,7 +176,7 @@ const char* TinyPBCoder::encodeTinyPB(TinyPBProtocol::s_ptr message,
 	}
 	DEBUGLOG("msg_id = %s", message->getMsgId().c_str());
 	int pk_len = 2 + 24 + message->getMsgId().length() + message->getMethodName().length() +
-	             message->getErrInfo().length() + message->getPbBody().size();
+	             message->getErrInfo().length() + message->getPbBody().length();
 	DEBUGLOG("pk_len = %d", pk_len);
 
 	char* buffer = reinterpret_cast<char*>(malloc(pk_len));
@@ -189,7 +189,7 @@ const char* TinyPBCoder::encodeTinyPB(TinyPBProtocol::s_ptr message,
 	memcpy(tmp, &pk_len_net, sizeof(pk_len_net));
 	tmp += sizeof(pk_len_net);
 
-	int32_t msg_id_len = message->getMsgId().size();
+	int32_t msg_id_len = message->getMsgId().length();
 	int32_t msg_id_len_net = htonl(msg_id_len);
 	memcpy(tmp, &msg_id_len_net, sizeof(msg_id_len_net));
 	tmp += sizeof(msg_id_len_net);
@@ -199,34 +199,35 @@ const char* TinyPBCoder::encodeTinyPB(TinyPBProtocol::s_ptr message,
 		tmp += msg_id_len;
 	}
 
-	int method_name_len = message->getMethodName().size();
+	int method_name_len = message->getMethodName().length();
 	int32_t method_name_len_net = htonl(method_name_len);
 	memcpy(tmp, &method_name_len_net, sizeof(method_name_len_net));
 	tmp += sizeof(method_name_len_net);
 
 	if (!message->getMethodName().empty()) {
 		memcpy(tmp, message->getMethodName().c_str(),
-		       	message->getMethodName().size());
-		tmp += message->getMethodName().size();
+		       	message->getMethodName().length());
+		tmp += message->getMethodName().length();
 	}
 
 	int32_t err_code_net = htonl(message->getErrCode());
 	memcpy(tmp, &err_code_net, sizeof(err_code_net));
 	tmp += sizeof(err_code_net);
 
-	int err_info_len = message->getErrInfoLen();
+	int err_info_len = message->getErrInfo().length();
 	int32_t err_info_len_net = htonl(err_info_len);
 	memcpy(tmp, &err_info_len_net, sizeof(err_info_len_net));
 	tmp += sizeof(err_info_len_net);
 
 	if (!message->getErrInfo().empty()) {
-		memcpy(tmp, message->getErrInfo().c_str(), message->getErrInfo().size());
-		tmp += message->getErrInfo().size();
+		memcpy(tmp, message->getErrInfo().c_str(), message->getErrInfo().length());
+		tmp += message->getErrInfo().length();
 	}
 
 	if (!message->getPbBody().empty()) {
-		memcpy(tmp, message->getPbBody().c_str(), message->getPbBody().size());
-		tmp += message->getPbBody().size();
+		memcpy(tmp, message->getPbBody().c_str(), message->getPbBody().length());
+		DEBUGLOG("pb_body = [%s]", message->getPbBody().c_str());
+		tmp += message->getPbBody().length();
 	}
 
 	int32_t check_sum_net = htonl(1);

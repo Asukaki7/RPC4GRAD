@@ -58,7 +58,7 @@ private:
 	NetAddr::s_ptr m_local_addr;
 	NetAddr::s_ptr m_remote_addr;
 
-	int m_timeout{1000}; // ms
+	int32_t m_timeout{1000}; // ms
 };
 } // namespace rocket
 

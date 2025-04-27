@@ -13,9 +13,9 @@ public:
 	TimerEvent(int interval, bool is_repeated, std::function<void()> cb);
 
 	int64_t getArriveTime() const { return m_arrive_time; }
-	void setCanceler(bool value) { m_is_canceld = value; }
+	void setCanceled(bool value) { m_is_canceled = value; }
 
-	bool isCanceled() const { return m_is_canceld; }
+	bool isCanceled() const { return m_is_canceled; }
 
 	bool isRepeated() const { return m_is_repeated; }
 
@@ -27,7 +27,7 @@ private:
 	int64_t m_arrive_time{};
 	int64_t m_interval{};
 	bool m_is_repeated{false};
-	bool m_is_canceld{false};
+	bool m_is_canceled{false};
 	std::function<void()> m_task;
 };
 

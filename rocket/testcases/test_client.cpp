@@ -56,7 +56,7 @@ void test_tcp_client() {
 		std::shared_ptr<rocket::TinyPBProtocol> message =
 		    std::make_shared<rocket::TinyPBProtocol>();
 		message->setMsgId("114514");
-		message->setMethodName("testConnect");
+		message->setMethodName("testConnect.make");
 		message->setPbBody("testpbdata");
 		client.writeMessage(message,
 		                    [](rocket::AbstractProtocol::s_ptr msg_ptr) {

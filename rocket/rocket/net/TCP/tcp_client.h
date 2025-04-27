@@ -6,6 +6,7 @@
 #include "rocket/net/coder/abstract_protocol.h"
 #include "rocket/net/eventLoop.h"
 #include "rocket/net/fd_event.h"
+#include "rocket/net/timer_event.h"
 #include <functional>
 #include <string>
 namespace rocket {
@@ -42,6 +43,7 @@ public:
 
 	void initLocalAddr();
 
+	void addTimerEvent(TimerEvent::s_ptr timer_event);
 	
 private:
 	NetAddr::s_ptr m_remote_addr{nullptr};

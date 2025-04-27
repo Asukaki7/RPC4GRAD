@@ -1,7 +1,6 @@
-
 #include "rocket/net/rpc/rpc_channel.h"
-#include "coder/abstract_protocol.h"
-#include "coder/tinyPB_protocol.h"
+#include "rocket/net/coder/abstract_protocol.h"
+#include "rocket/net/coder/tinyPB_protocol.h"
 #include "rocket/common/error_code.h"
 #include "rocket/common/log.h"
 #include "rocket/common/msg_id_util.h"
@@ -9,7 +8,8 @@
 #include "rocket/net/TCP/tcp_client.h"
 #include "rocket/net/TCP/tcp_connection.h"
 #include "rocket/net/TCP/tcp_server.h"
-#include "rpc/rpc_controller.h"
+#include "rocket/net/rpc/rpc_controller.h"
+#include "rocket/net/timer_event.h"
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/message.h>
 #include <google/protobuf/service.h>
@@ -70,11 +70,28 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
 
 	s_ptr channel = shared_from_this();
 
+
+	m_timer_event = std::make_shared<TimerEvent>(my_controller->GetTimeout(), false, [my_controller, channel]() mutable {
+		my_controller->StartCancel();
+		my_controller->SetError(ERROR_RPC_CALL_TIMEOUT, "rpc call timeout " + std::to_string(my_controller->GetTimeout()) + "ms");
+		ERRORLOG("[%s] | rpc call timeout, error code [%d], error info [%s]", my_controller->GetMsgId().c_str(), my_controller->GetErrorCode(), my_controller->GetErrorInfo().c_str());
+
+		if (channel->getClosure() != nullptr) {
+			channel->getClosure()->Run();
+		}
+		channel.reset();
+	});
+
+	m_client->addTimerEvent(m_timer_event);
 	// 2. 发送rpc请求
 
 	m_client->connect([req_protocol, channel]() mutable {
 		auto my_controller =
 		    dynamic_cast<RpcController*>(channel->getController());
+		if (my_controller->IsCanceled()) {
+			channel->getTimerEvent()->setCanceled(true);
+			return;
+		}
 		if (channel->m_client->getConnectErrorCode() != 0) {
 			my_controller->SetError(channel->m_client->getConnectErrorCode(),
 			                        channel->m_client->getConnectErrorMsg());
@@ -114,6 +131,9 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
 				        channel->m_client->getRemoteAddr()->toString().c_str(),
 				        channel->m_client->getLocalAddr()->toString().c_str());
 
+					// 当成功读取到回包后，取消定时任务
+					channel->getTimerEvent()->setCanceled(true);
+					channel->resetTimerEvent();
 				    // 3. 反序列化response
 				    if (!(channel->getResponse()->ParseFromString(
 				            rsp_protocol->getPbBody()))) {
@@ -146,7 +166,9 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
 				        rsp_protocol->getMsgId().c_str(),
 				        rsp_protocol->getMethodName().c_str(),
 				        channel->getResponse()->ShortDebugString().c_str());
-
+					
+					
+					
 				    // 4. 执行回调函数
 				    if (channel->getClosure() != nullptr) {
 					    channel->getClosure()->Run();
@@ -185,5 +207,6 @@ google::protobuf::Closure* RpcChannel::getClosure() const {
 	return m_closure.get();
 }
 TcpClient* RpcChannel::getClient() const { return m_client.get(); }
-
+TimerEvent::s_ptr RpcChannel::getTimerEvent() const { return m_timer_event; }
+void RpcChannel::resetTimerEvent() { m_timer_event = nullptr; }
 } // namespace rocket

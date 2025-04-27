@@ -53,7 +53,7 @@ void Timer::addTimerEvent(TimerEvent::s_ptr event) {
 
 void Timer::deleteTimerEvent(TimerEvent::s_ptr event) {
 
-	event->setCanceler(true);
+	event->setCanceled(true);
 	ScopeMutex<Mutex> lock(m_mutex);
 
 	auto begin = m_pending_events.lower_bound(event->getArriveTime());
