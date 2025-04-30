@@ -14,6 +14,7 @@
 #include <google/protobuf/service.h>
 #include <memory>
 #include <netinet/in.h>
+#include <ostream>
 #include <pthread.h>
 #include <string>
 #include <sys/socket.h>
@@ -25,8 +26,9 @@ public:
 	               const ::makeOrderRequest* request,
 	               ::makeOrderResponse* response,
 	               ::google::protobuf::Closure* done) override {
-		DEBUGLOG("make order begin sleep");
-		DEBUGLOG("make order end sleep");
+		APPDEBUGLOG("make order begin sleep");
+		sleep(5);
+		APPDEBUGLOG("make order end sleep");
 		if (request->price() < 10) {
 			response->set_ret_code(-1);
 			response->set_res_info("short balance");
@@ -37,24 +39,28 @@ public:
 	~OrderImpl() {}
 };
 
-void test_tcp_server() {
-	rocket::IPNetAddr::s_ptr addr =
-	    std::make_shared<rocket::IPNetAddr>("127.0.0.1", 12345);
+extern rocket::Config* g_config;
 
-	DEBUGLOG("create addr %s", addr->toString().c_str());
 
-	rocket::TcpServer tcp_server(addr);
+int main(int argc, char* argv[]) {
 
-	tcp_server.start();
-}
-
-int main() {
-
-	rocket::Config::setGlobalConfig("../conf/rocket.xml");
+	if (argc != 2) {
+		std::cout << "start test rpc server error, please input config file"
+		          << std::endl;
+		std::cout << "example: ./test_rpc_server ../conf/rocket.xml"
+		          << std::endl;
+	}
+	rocket::Config::setGlobalConfig(argv[1]);
 
 	rocket::Logger::InitGlobalLogger();
 
 	std::shared_ptr<OrderImpl> service = std::make_shared<OrderImpl>();
 	rocket::RpcDispatcher::getRpcDispatcher()->registerService(service);
-	test_tcp_server();
+
+	rocket::IPNetAddr::s_ptr addr =
+	    std::make_shared<rocket::IPNetAddr>("127.0.0.1", rocket::Config::GetGlobalConfig()->m_port);
+
+	rocket::TcpServer tcp_server(addr);
+
+	tcp_server.start();
 }

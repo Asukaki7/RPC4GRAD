@@ -8,6 +8,7 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/service.h>
 #include <string>
+#include "rocket/common/run_time.h"
 
 namespace rocket {
 
@@ -93,6 +94,10 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,
 	rpc_controller.SetLocalAddr(connection->getLocalAddr());
 	rpc_controller.SetRemoteAddr(connection->getRemoteAddr());
 	rpc_controller.SetMsgId(request_protocol->getMsgId());
+
+
+	RunTime::getRuntime().setMsgId(request_protocol->getMsgId());
+	RunTime::getRuntime().setMethodName(method_name);
 
 	service->CallMethod(method, &rpc_controller, req_msg, rsp_msg, nullptr);
 

@@ -93,11 +93,11 @@ void test_rpc_channel() {
 	    std::make_shared<rocket::RpcClosure>(
 	        [request, response, channel, controller]() mutable {
 		        if (controller->GetErrorCode() == 0) {
-			        INFOLOG("call rpc success, request: %s, response: %s",
+			        APPINFOLOG("call rpc success, request: %s, response: %s",
 			                request->ShortDebugString().c_str(),
 			                response->ShortDebugString().c_str());
 		        } else {
-			        INFOLOG("call rpc failed, request: %s, error code [%d], "
+			        APPINFOLOG("call rpc failed, request: %s, error code [%d], "
 			                "error info [%s]",
 			                request->ShortDebugString().c_str(),
 			                controller->GetErrorCode(),
@@ -108,7 +108,7 @@ void test_rpc_channel() {
 					// xx
 				}
 		        INFOLOG("now exit eventLoop");
-		        channel->getClient()->stop();
+		        // channel->getClient()->stop();
 		        channel.reset();
 	        });
 	
@@ -121,13 +121,13 @@ void test_rpc_channel() {
 
 int main() {
 
-	rocket::Config::setGlobalConfig("../conf/rocket.xml");
+	rocket::Config::setGlobalConfig(nullptr);
 
-	rocket::Logger::InitGlobalLogger();
+	rocket::Logger::InitGlobalLogger(0);
 
 	//test_tcp_client();
 	test_rpc_channel();
-	INFOLOG("test rpc channel end");
+	APPINFOLOG("test rpc channel end");
 
 	return 0;
 }
