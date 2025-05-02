@@ -24,11 +24,11 @@ namespace rocket {
 	std::shared_ptr<rocket::RpcChannel> var_name = \
 		std::make_shared<rocket::RpcChannel>(std::make_shared<rocket::IPNetAddr>(addr)); \
 
-#define CALLRPC(addr, method_name, controller, request, response, done) \
+#define CALLRPC(addr, stub_name, method_name, controller, request, response, done) \
 {\
 	NEWRPCCHANNEL(addr, channel); \
 	channel->Init(controller, request, response, done); \
-	Order_Stub(channel.get()).method_name(controller.get(), request.get(), response.get(), done.get());\
+	stub_name(channel.get()).method_name(controller.get(), request.get(), response.get(), done.get());\
 }\
 
 class RpcChannel : public google::protobuf::RpcChannel,

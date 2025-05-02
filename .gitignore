@@ -1,5 +1,6 @@
 tinyxml
 protobuf-3.19.4
+student_server
 .vscode/
 rocket/build
 rocket/bin
@@ -8,3 +9,5 @@ rocket/obj
 rocket/log
 rocket/.cache
 rocket/CMakePresets.json
+.clangd
+student_server.proto

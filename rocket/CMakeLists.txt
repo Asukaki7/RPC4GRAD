@@ -98,12 +98,17 @@ install(DIRECTORY rocket/net/
     FILES_MATCHING PATTERN "*.h"
 )
 
-install(DIRECTORY rocket/net/TCP
+install(DIRECTORY rocket/net/coder/
+    DESTINATION /usr/include/rocket/net/coder
+    FILES_MATCHING PATTERN "*.h"
+)
+
+install(DIRECTORY rocket/net/TCP/
     DESTINATION /usr/include/rocket/net/TCP
     FILES_MATCHING PATTERN "*.h"
 )
 
-install(DIRECTORY rocket/net/rpc
+install(DIRECTORY rocket/net/rpc/
     DESTINATION /usr/include/rocket/net/rpc
     FILES_MATCHING PATTERN "*.h"
 )

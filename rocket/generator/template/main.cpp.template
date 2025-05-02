@@ -1,0 +1,42 @@
+/******************************************************
+
+                    Asukaki.RPC
+* ${FILE_NAME}
+* ${CREATE_TIME}
+* Gnerated by rocket framework rocket_generator.py
+* Warning do not edit!!!
+
+*******************************************************/
+
+
+#include <google/protobuf/service.h>
+#include <memory>
+#include "rocket/common/log.h"
+#include "rocket/common/config.h"
+#include "rocket/net/TCP/net_addr.h"
+#include "rocket/net/TCP/tcp_server.h"
+#include "rocket/net/rpc/rpc_dispatcher.h"
+${INCLUDE_SERVER_HEADER}
+
+int main(int argc, char* argv[]) {
+
+	if (argc != 2) {
+		std::cout << "start ${PROJECT_NAME} error, please input config file"
+		          << std::endl;
+		std::cout << "example: ./${PROJECT_NAME} ../conf/rocket.xml"
+		          << std::endl;
+	}
+	rocket::Config::setGlobalConfig(argv[1]);
+
+	rocket::Logger::InitGlobalLogger();
+
+	rocket::RpcDispatcher::getRpcDispatcher()->registerService(std::make_shared<${CLASS_NAME}>());
+
+  	rocket::IPNetAddr::s_ptr addr = std::make_shared<rocket::IPNetAddr>("127.0.0.1", rocket::Config::GetGlobalConfig()->m_port);
+
+  	rocket::TcpServer tcp_server(addr);
+
+  	tcp_server.start();
+
+  	return 0;
+}

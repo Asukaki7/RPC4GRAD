@@ -16,7 +16,6 @@
 #include <netinet/in.h>
 #include <ostream>
 #include <pthread.h>
-#include <string>
 #include <sys/socket.h>
 #include <unistd.h>
 

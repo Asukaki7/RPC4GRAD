@@ -8,9 +8,9 @@
 #include "rocket/net/coder/tinyPB_coder.h"
 #include "rocket/net/coder/tinyPB_protocol.h"
 #include "rocket/net/rpc/rpc_dispatcher.h"
-#include "rpc/rpc_channel.h"
-#include "rpc/rpc_closure.h"
-#include "rpc/rpc_controller.h"
+#include "rocket/net/rpc/rpc_channel.h"
+#include "rocket/net/rpc/rpc_closure.h"
+#include "rocket/net/rpc/rpc_controller.h"
 #include "testcases/order.pb.h"
 #include <arpa/inet.h>
 #include <cstdlib>
@@ -116,7 +116,7 @@ void test_rpc_channel() {
 	// Order_Stub stub(channel.get());
 	// stub.makeOrder(controller.get(), request.get(), response.get(), done.get());
 	
-	CALLRPC("127.0.0.1:12345", makeOrder, controller, request, response, done);
+	CALLRPC("127.0.0.1:12345", Order_Stub ,makeOrder, controller, request, response, done);
 }
 
 int main() {
