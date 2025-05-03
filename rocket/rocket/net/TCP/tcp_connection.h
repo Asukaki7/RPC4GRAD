@@ -74,6 +74,8 @@ public:
 
 	NetAddr::s_ptr getRemoteAddr();
 
+	void reply(std::vector<AbstractProtocol::s_ptr>& messages);
+	
 private:
 	NetAddr::s_ptr m_local_addr;
 	NetAddr::s_ptr m_remote_addr;

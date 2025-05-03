@@ -136,6 +136,9 @@ public:
 public:
 	static void* Loop(void* arg);
 
+public:
+	pthread_t m_thread;
+
 private:
 	std::queue<std::vector<std::string>> m_buffers;
 	std::queue<std::vector<std::string>> m_app_buffers;
@@ -148,7 +151,7 @@ private:
 	int m_max_file_size{}; // 日志单个文件大小
 
 	sem_t m_semaphore;
-	pthread_t m_thread;
+	
 
 	pthread_cond_t m_condition;
 	Mutex m_mutex;
@@ -168,6 +171,8 @@ public:
 	~Logger();
 	Logger() = default;
 
+	void init();
+
 	void pushLog(const std::string& msg);
 	void pushAppLog(const std::string& msg);
 
@@ -175,8 +180,15 @@ public:
 
 	LogLevel getlogLevel() const { return m_set_level; }
 
+	AsyncLogger::s_ptr getAsyncLogger() {
+		return m_async_logger;
+	}
+	AsyncLogger::s_ptr getAsyncAppLogger() {
+		return m_async_app_logger;
+	}
+
 	void syncLoop();
-	void init();
+	void flush();
 
 public:
 	static Logger* getGlobalLogger();

@@ -1,0 +1,54 @@
+/******************************************************
+
+                    Asukaki.RPC
+* ${FILE_NAME}
+* ${CREATE_TIME}
+* Gnerated by rocket framework rocket_generator.py
+* Warning do not edit!!!
+
+*******************************************************/
+
+
+#ifndef ${HEADER_DEFINE}
+#define ${HEADER_DEFINE} 
+
+#include <rocket/net/rpc/rpc_closure.h>
+#include <rocket/net/rpc/rpc_controller.h>
+
+namespace ${PROJECT_NAME} {
+
+/*
+ * Rpc Interface Base Class
+ * All interface should extend this abstract class
+*/
+
+class Interface {
+ public:
+
+  Interface(rocket::RpcClosure& done, const rocket::RpcController& controller);
+
+  ~Interface();
+
+  // core business deal method
+  virtual void run() = 0;
+
+  // set error code and error into to response message
+  virtual void setError(long long code, const std::string& err_info) = 0;
+
+  // reply to client
+  // you should call is when you wan to set response back
+  // it means this rpc method done 
+  virtual void reply();
+
+ protected:
+  rocket::RpcClosure& m_done;       // callback
+
+  const rocket::RpcController& m_controller;
+
+};
+
+
+}
+
+
+#endif

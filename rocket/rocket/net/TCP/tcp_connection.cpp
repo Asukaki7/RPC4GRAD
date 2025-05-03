@@ -115,7 +115,7 @@ void TcpConnection::execute() {
 	// 将 RPC 请求执行业务逻辑，获取 RPC 响应, 再把 RPC 响应发送回去
 	if (m_connection_type == TcpConnectionType::TcpConnectionByServer) {
 		std::vector<AbstractProtocol::s_ptr> request_messages;
-		std::vector<AbstractProtocol::s_ptr> replay_result;
+		
 		m_coder->decode(request_messages, m_in_buffer);
 
 		for (size_t i = 0; i < request_messages.size(); i++) {
@@ -130,12 +130,9 @@ void TcpConnection::execute() {
 			// response_message->setMsgId(result[i]->getMsgId());
 
 			RpcDispatcher::getRpcDispatcher()->dispatch(request_messages[i], response_message, this);
-			replay_result.emplace_back(response_message);
+			
 		}
 
-		m_coder->encode(replay_result, m_out_buffer);
-
-		listenWrite();
 	} else if (m_connection_type == TcpConnectionType::TcpConnectionByClient) {
 		// 从buffer里decode解码 得到message对象, 执行回调
 		std::vector<AbstractProtocol::s_ptr> result;
@@ -281,5 +278,10 @@ void TcpConnection::pushReadMessage(
 NetAddr::s_ptr TcpConnection::getLocalAddr() { return m_local_addr; }
 
 NetAddr::s_ptr TcpConnection::getRemoteAddr() { return m_remote_addr; }
+
+void TcpConnection::reply(std::vector<AbstractProtocol::s_ptr>& messages) {
+	m_coder->encode(messages, m_out_buffer);
+	listenWrite();
+}
 
 } // namespace rocket

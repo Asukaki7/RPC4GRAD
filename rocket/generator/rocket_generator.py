@@ -309,12 +309,14 @@ def generate_framework_code():
     print("Begin to generate business_exception.h")
     exception_file = src_path + '/comm/business_exception.h'
     if not os.path.exists(exception_file):
+        #generate business_exception.h
         exception_template_file = Template(open(generator_path + '/template/business_exception.h.template', 'r').read())
         exception_content = exception_template_file.safe_substitute(
             PROJECT_NAME = project_name,
-            FILE_NAME = 'bussiness_exception.h',
+            FILE_NAME = 'business_exception.h',
             HEADER_DEFINE = project_name.upper() + '_COMM_BUSINESSEXCEPTION_H',
-            CREATE_TIME = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            CREATE_TIME = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            INCLUDE_INTERFACEBASE_HEADER_FILE = '#include "' + project_name + '/interface/interface.h"',
         )
         out_exception_file = open(exception_file, 'w')
         out_exception_file.write(exception_content)
@@ -380,7 +382,7 @@ def generate_framework_code():
         i1 = tmp.find('void')
         tmp = tmp[i1:]
 
-        i2 = tmp.find('(')
+        i2 = tmp.find( '(' )
         method_name = tmp[5:i2]
         interface_class_name = to_camel(method_name) + 'Interface'
         interface_file_name = to_underline(method_name)
@@ -421,6 +423,7 @@ def generate_framework_code():
 
     print('=' * 100)
     print("Begin to generate main.cpp")
+
     # genneator main.cpp file
     main_file = src_path + '/main.cpp'
     if not os.path.exists(main_file):
@@ -441,9 +444,47 @@ def generate_framework_code():
     print('End generate main.cpp')
     print('=' * 100)
 
+    print('=' * 100)
+    # genneator interface.h file
+    interfase_base_h_file = src_path + '/interface/interface.h'
+    if not os.path.exists(interfase_base_h_file):
+        interface_base_h_file_temlate = Template(open(generator_path + '/template/interface_base.h.template','r').read())
+        interfase_base_h_file_content = interface_base_h_file_temlate.safe_substitute(
+            FILE_NAME = 'interface.h',
+            PROJECT_NAME = project_name,
+            HEADER_DEFINE = project_name.upper() + '_INTERFACE_H',
+            CREATE_TIME = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        )
+        interface_base_h_handler = open(interfase_base_h_file, 'w')
+        interface_base_h_handler.write(interfase_base_h_file_content)
+        interface_base_h_handler.close()
+    else:
+        print("file: [" + interfase_base_h_file + "] exist, skip")
+
+    print('End generate interface.h')
+    print('=' * 100)
+
+    # genneator interface.cpp file
+    interfase_base_cc_file = src_path + '/interface/interface.cpp'
+    if not os.path.exists(interfase_base_cc_file):
+        interface_base_cc_file_temlate = Template(open(generator_path + '/template/interface_base.cpp.template','r').read())
+        interfase_base_cc_file_content = interface_base_cc_file_temlate.safe_substitute(
+            FILE_NAME = 'interface.cpp',
+            PROJECT_NAME = project_name,
+            CREATE_TIME = datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            INCLUDE_INTERFACEBASE_HEADER_FILE = '#include "' + project_name + '/interface/interface.h"',
+        )
+        interface_base_cc_handler = open(interfase_base_cc_file, 'w')
+        interface_base_cc_handler.write(interfase_base_cc_file_content)
+        interface_base_cc_handler.close()
+    else:
+        print("file: [" + interfase_base_cc_file + "] exist, skip")
+
+    print('End generate interface.cpp')
+    print('=' * 100)
 
     print('=' * 100)
-    print('Begin generate each interface.cpp & interface.h')
+    print('Begin generate each rpc method interface.cpp & interface.h')
     # genneator each interface.cpp and .h file
     interface_head_file_temlate = Template(open(generator_path + '/template/interface.h.template','r').read())
     interface_cc_file_temlate = Template(open(generator_path + '/template/interface.cpp.template','r').read())
@@ -462,7 +503,8 @@ def generate_framework_code():
                 CREATE_TIME = datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 CLASS_NAME = each['interface_class_name'],
                 REQUEST_TYPE = each['request_type'],
-                RESPONSE_TYPE = each['response_type'],
+                RESPONSE_TYPE = each['response_type'], 
+                INCLUDE_INTERFACEBASE_HEADER_FILE = '#include "' + project_name + '/interface/interface.h"',
                 FILE_NAME = each['interface_name'] + '.h'
             )
             out_interface_header_file = open(file, 'w')
@@ -478,6 +520,7 @@ def generate_framework_code():
                 PROJECT_NAME = project_name,
                 INCLUDE_PB_HEADER = '#include "' + project_name + '/pb/' + project_name + '.pb.h"', 
                 INCLUDE_INTERFACE_HEADER_FILE = '#include "' + project_name + '/interface/' + each['interface_name'] + '.h"',
+                INCLUDE_INTERFACEBASE_HEADER_FILE = '#include "' + project_name + '/interface/interface.h"',
                 CREATE_TIME = datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 CLASS_NAME = each['interface_class_name'],
                 REQUEST_TYPE = each['request_type'],

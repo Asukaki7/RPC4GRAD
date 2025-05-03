@@ -1,4 +1,5 @@
 #include "rocket/net/eventLoop.h"
+#include "rocket/common/exception.h"
 #include "rocket/common/log.h"
 #include "rocket/common/mutex.h"
 #include "rocket/common/util.h"
@@ -8,6 +9,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <exception>
 #include <functional>
 #include <queue>
 #include <sys/epoll.h>
@@ -106,9 +108,17 @@ void EventLoop::loop() {
 		while (!tmp_tasks.empty()) {
 			auto cb = tmp_tasks.front();
 			tmp_tasks.pop();
-			if (cb) {
+			try {
+				if (cb) {
 				cb();
 			}
+			} catch (RocketException& e) {
+				ERRORLOG("RocketException exception [%s], deal handle", e.what());
+				e.handle();
+			} catch (std::exception& e) {
+				ERRORLOG("std::exception exception [%s]", e.what());
+			}
+			
 		}
 
 		int timeout = g_epoll_max_timeout;

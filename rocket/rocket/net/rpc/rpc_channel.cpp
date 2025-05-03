@@ -101,6 +101,13 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
 			         my_controller->GetErrorCode(),
 			         my_controller->GetErrorInfo().c_str(),
 			         channel->m_client->getRemoteAddr()->toString().c_str());
+			
+			// 取消定时任务
+			channel->getTimerEvent()->setCanceled(true);
+			if (channel->getClosure() != nullptr) {
+				channel->getClosure()->Run();
+			}
+			channel.reset();
 			return;
 		}
 

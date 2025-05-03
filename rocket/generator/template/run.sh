@@ -35,6 +35,6 @@ then
   chmod +x ${PROJECT_BIN_FILE}
 fi
 
-sh shutdown.sh ${PROJECT_NAME}
+bash shutdown.sh ${PROJECT_NAME}
 nohup ./${PROJECT_NAME} ${PROJECT_CONF_FILE} & > ${PROJECT_ROOT_PATH}/log/${PROJECT_NAME}.nohup_log
 echo "Start rocket rpc server ${PROJECT_CONF_FILE} succ"

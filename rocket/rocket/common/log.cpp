@@ -4,6 +4,7 @@
 #include "rocket/common/run_time.h"
 #include "rocket/common/util.h"
 #include "rocket/net/eventLoop.h"
+#include <csignal>
 #include <cstdio>
 #include <ctime>
 #include <iostream>
@@ -11,13 +12,24 @@
 #include <pthread.h>
 #include <queue>
 #include <semaphore.h>
+#include <signal.h>
 #include <sstream>
 #include <string>
 #include <sys/time.h>
+#include <unistd.h>
 
 namespace rocket {
 
 static Logger* g_logger = nullptr;
+
+void CoredumpHandler(int signal_no) {
+	ERRORLOG("progress receoved invalid signal, will exit");
+	g_logger->flush();
+	pthread_join(g_logger->getAsyncLogger()->m_thread, nullptr);
+	pthread_join(g_logger->getAsyncAppLogger()->m_thread, nullptr);
+	signal(signal_no, SIG_DFL);
+	raise(signal_no);
+}
 
 Logger* Logger::getGlobalLogger() { return g_logger; }
 
@@ -59,11 +71,19 @@ void Logger::init() {
 	    std::bind(&Logger::syncLoop, this));
 
 	EventLoop::getCurrentEventLoop()->addTimerEvent(m_timer_event);
+
+	// 注册信号处理函数
+	signal(SIGSEGV, CoredumpHandler);   // 处理段错误
+	signal(SIGABRT, CoredumpHandler);   // 处理abort
+	signal(SIGTERM, CoredumpHandler);   // 处理kill -15
+	signal(SIGKILL, CoredumpHandler);   // 处理kill -9
+	signal(SIGINT, CoredumpHandler);    // 处理Ctrl+C
+	signal(SIGSTKFLT, CoredumpHandler); // 处理栈溢出
 }
 
 void Logger::pushLog(const std::string& msg) {
 	if (m_type == 0) {
-		std::cout <<  msg << '\n';
+		std::cout << msg << '\n';
 		return;
 	}
 	ScopeMutex<Mutex> lock(m_mutex);
@@ -97,12 +117,20 @@ void Logger::syncLoop() {
 	ScopeMutex<Mutex> lock_app(m_app_mutex);
 	m_app_buffers.swap(tmp_vec_app);
 	lock_app.unlock();
-	
 
 	if (!tmp_vec_app.empty()) {
 		m_async_app_logger->pushLogBuffer(tmp_vec_app);
 	}
 	tmp_vec_app.clear();
+}
+
+void Logger::flush() {
+	syncLoop();
+	m_async_logger->stop();
+	m_async_logger->flush();
+
+	m_async_app_logger->stop();
+	m_async_app_logger->flush();
 }
 
 std::string LogLevelToString(LogLevel level) {
@@ -162,7 +190,7 @@ std::string LogEvent::toString() {
 	if (!msgId.empty()) {
 		ss << "[" << msgId << "]\t";
 	}
-	
+
 	if (!methodName.empty()) {
 		ss << "[" << methodName << "]\t";
 	}
@@ -179,7 +207,6 @@ AsyncLogger::AsyncLogger(const std::string& file_name,
 	pthread_cond_init(&m_condition, nullptr);
 	pthread_create(&m_thread, nullptr, &AsyncLogger::Loop, this);
 
-	
 	sem_wait(&m_semaphore);
 }
 

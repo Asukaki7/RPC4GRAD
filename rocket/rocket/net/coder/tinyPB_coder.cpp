@@ -226,7 +226,6 @@ const char* TinyPBCoder::encodeTinyPB(TinyPBProtocol::s_ptr message,
 
 	if (!message->getPbBody().empty()) {
 		memcpy(tmp, message->getPbBody().c_str(), message->getPbBody().length());
-		DEBUGLOG("pb_body = [%s]", message->getPbBody().c_str());
 		tmp += message->getPbBody().length();
 	}
 
