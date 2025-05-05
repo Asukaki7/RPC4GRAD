@@ -1,6 +1,14 @@
 #include "rocket/net/rpc/rpc_controller.h"
-
+#include "rocket/common/log.h"
 namespace rocket {
+
+
+RpcController::RpcController() {
+	INFOLOG("RpcController constructor");
+}
+RpcController::~RpcController() {
+	INFOLOG("RpcController destructor");
+}
 
 void RpcController::Reset() {
 

@@ -10,5 +10,8 @@ void RunTime::setMethodName(std::string method_name) {
 	m_method_name = method_name;
 }
 RpcInterface* RunTime::getRpcInterface() const { return m_rpc_interface; }
+void RunTime::setRpcInterface(RpcInterface* rpc_interface) {
+	m_rpc_interface = rpc_interface;
+}
 
 } // namespace rocket

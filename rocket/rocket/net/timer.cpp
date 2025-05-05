@@ -163,7 +163,7 @@ void Timer::resetArriveTime() {
 		ERRORLOG("timerfd_settime error, errno = %d, error = %s", errno,
 		         strerror(errno));
 	}
-	DEBUGLOG("timer reset to [%lld]", now + interval);
+	// DEBUGLOG("timer reset to [%lld]", now + interval);
 }
 
 } // namespace rocket

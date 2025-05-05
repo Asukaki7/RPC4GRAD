@@ -13,6 +13,7 @@
 #include <rocket/net/rpc/rpc_controller.h>
 #include <rocket/net/rpc/rpc_closure.h>
 #include <rocket/common/log.h>
+#include <iostream>
 ${INCLUDE_PB_HEADER}
 
 
@@ -42,17 +43,21 @@ void test_client(const std::string& addr) {
 
   CALLRPC(addr, ${STUBCLASS}, ${METHOD_NAME}, controller, request, response, closure);
 
-} 
+}
 
 int main(int argc, char* argv[]) {
 
+  if (argc != 3) {
+    std::cout << "Usage: " << argv[0] << " <ip> <port>" << std::endl;
+    return 1;
+  }
   rocket::Config::setGlobalConfig(NULL);
 
-  rocket::Logger::InitGlobalLogger(0);
+	rocket::Logger::InitGlobalLogger(0);
 
-  std::string addr = std::string(argv[1]) + ":" + std::string(argv[2]);  
+	std::string addr = std::string(argv[1]) + ":" + std::string(argv[2]);
 
-  test_client(addr);
+	test_client(addr);
 
-  return 0;
+	return 0;
 }

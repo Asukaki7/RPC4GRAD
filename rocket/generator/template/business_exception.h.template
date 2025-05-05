@@ -8,28 +8,25 @@
 
 *******************************************************/
 
-#ifndef ${HEADER_DEFINE}
-#define ${HEADER_DEFINE}
-
+#include "run_time.h"
+#ifndef ${HEADER_DEFINE }
+#define ${HEADER_DEFINE }
 
 #include <memory>
+#include <rocket/common/exception.h>
 #include <rocket/common/log.h>
+#include <rocket/common/run_time.h>
 #include <sstream>
 #include <string>
-#include <rocket/common/exception.h>
 
-${INCLUDE_INTERFACEBASE_HEADER_FILE}
-
-namespace ${PROJECT_NAME}
+namespace $ {PROJECT_NAME}
 {
 
 	class BusinessException : public rocket::RocketException {
 	public:
-		BusinessException(Interface* interface, long long code,
-		                  const std::string& err_info,
+		BusinessException(long long code, const std::string& err_info,
 		                  const std::string& file_name, int line)
-		    : m_interface(interface)
-		    , m_error_code(code)
+		    : m_error_code(code)
 		    , m_error_info(err_info)
 		    , m_file_name(file_name)
 		    , m_line(line) {
@@ -41,12 +38,12 @@ namespace ${PROJECT_NAME}
 
 		~BusinessException() {}
 
-    void handle() override {
-      if (m_interface) {
-        m_interface->setError(m_error_code, m_error_info);
-        m_interface->reply();
-      }
-    }
+		void handle() override {
+			rocket::RpcInterface* interface = rocket::RunTime::getRuntime().getRpcInterface();
+			if (interface) {
+				interface->setError(m_error_code, m_error_info);
+			}
+		}
 		const char* what() { return m_error_info.c_str(); }
 
 		std::string error() { return m_error_info; }

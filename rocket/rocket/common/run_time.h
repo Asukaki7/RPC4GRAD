@@ -2,10 +2,12 @@
 #define ROCKET_COMMON_RUN_TIME_H
 
 #include <string>
-#include "rocket/net/rpc/rpc_interface.h"
+
 
 
 namespace rocket {
+
+class RpcInterface;
 
 class RunTime {
 
@@ -19,6 +21,7 @@ public:
     std::string getMethodName() const;
 	void setMsgId(std::string);
 	void setMethodName(std::string);
+	void setRpcInterface(RpcInterface*);
 	RpcInterface* getRpcInterface() const;
 private:
 	std::string m_msgId;

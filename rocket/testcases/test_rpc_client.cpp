@@ -90,7 +90,7 @@ void test_rpc_channel() {
 
 
 	std::shared_ptr<rocket::RpcClosure> done =
-	    std::make_shared<rocket::RpcClosure>(
+	    std::make_shared<rocket::RpcClosure>(nullptr,
 	        [request, response, channel, controller]() mutable {
 		        if (controller->GetErrorCode() == 0) {
 			        APPINFOLOG("call rpc success, request: %s, response: %s",

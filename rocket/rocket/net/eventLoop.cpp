@@ -108,17 +108,9 @@ void EventLoop::loop() {
 		while (!tmp_tasks.empty()) {
 			auto cb = tmp_tasks.front();
 			tmp_tasks.pop();
-			try {
-				if (cb) {
+			if (cb) {
 				cb();
 			}
-			} catch (RocketException& e) {
-				ERRORLOG("RocketException exception [%s], deal handle", e.what());
-				e.handle();
-			} catch (std::exception& e) {
-				ERRORLOG("std::exception exception [%s]", e.what());
-			}
-			
 		}
 
 		int timeout = g_epoll_max_timeout;
@@ -127,7 +119,7 @@ void EventLoop::loop() {
 		int rt =
 		    epoll_wait(m_epoll_fd, result_events, g_epoll_max_event, timeout);
 
-		DEBUGLOG("now end to epoll_wait rt = %d", rt);
+		// DEBUGLOG("now end to epoll_wait rt = %d", rt);
 
 		if (rt == -1) {
 			ERRORLOG("epoll_wait error, errno = ", errno);
@@ -140,11 +132,11 @@ void EventLoop::loop() {
 					continue;
 				}
 				if (trigger_event.events & EPOLLIN) {
-					DEBUGLOG("fd %d trigger EPOLLIN event", fd_event->getFd());
+					// DEBUGLOG("fd %d trigger EPOLLIN event", fd_event->getFd());
 					addTask(fd_event->handler(FdEvent::TriggerEvent::IN_EVENT));
 				}
 				if (trigger_event.events & EPOLLOUT) {
-					DEBUGLOG("fd %d trigger EPOLLOUT event", fd_event->getFd());
+					// DEBUGLOG("fd %d trigger EPOLLOUT event", fd_event->getFd());
 					addTask(
 					    fd_event->handler(FdEvent::TriggerEvent::OUT_EVENT));
 				}

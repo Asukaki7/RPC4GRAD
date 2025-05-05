@@ -107,13 +107,11 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,
 	RunTime::getRuntime().setMsgId(request_protocol->getMsgId());
 	RunTime::getRuntime().setMethodName(method_name);
 
-	RpcClosure* closure = new RpcClosure([req_msg, rsp_msg, request_protocol, response_protocol, connection, rpc_controller, this]() mutable {
+	RpcClosure* closure = new RpcClosure(nullptr, [req_msg, rsp_msg, request_protocol, response_protocol, connection, this]() mutable {
 		if (!rsp_msg->SerializeToString(&(response_protocol->getPbBody()))) {
 			ERRORLOG("[%s] | serilize error, origin message [%s]", request_protocol->getMsgId().c_str(), rsp_msg->ShortDebugString().c_str());
 			setTinyPBErrorCode(response_protocol, ERROR_FAILED_SERIALIZE, "serialize response error");
-			DELETE_RESOURCE(req_msg);
-			DELETE_RESOURCE(rsp_msg);
-			DELETE_RESOURCE(rpc_controller);
+			
 		} else {
 			response_protocol->setErrCode(0);
 			response_protocol->setErrInfo("");
@@ -127,9 +125,6 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,
 		reply_messages.push_back(response_protocol);
 		connection->reply(reply_messages);
 
-		DELETE_RESOURCE(req_msg);
-		DELETE_RESOURCE(rsp_msg);
-		DELETE_RESOURCE(rpc_controller);
 	});
 
 	service->CallMethod(method, rpc_controller, req_msg, rsp_msg, closure);

@@ -26,7 +26,7 @@ public:
 	               ::makeOrderResponse* response,
 	               ::google::protobuf::Closure* done) override {
 		APPDEBUGLOG("make order begin sleep");
-		sleep(5);
+		
 		APPDEBUGLOG("make order end sleep");
 		if (request->price() < 10) {
 			response->set_ret_code(-1);

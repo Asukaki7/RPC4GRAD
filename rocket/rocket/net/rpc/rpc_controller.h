@@ -11,8 +11,8 @@ namespace rocket {
 
 class RpcController : public google::protobuf::RpcController {
 public:
-	RpcController() {}
-	~RpcController() {}
+	RpcController();
+	~RpcController();
 	void Reset();
 
 	bool Failed() const;
