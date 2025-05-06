@@ -4,13 +4,14 @@
 * ${FILE_NAME}
 * ${CREATE_TIME}
 * Gnerated by rocket framework rocket_generator.py
-* Warning do not edit!!!
+* File will not generate while exist
+* Allow editing
 
 *******************************************************/
 
-#include "run_time.h"
-#ifndef ${HEADER_DEFINE }
-#define ${HEADER_DEFINE }
+
+#ifndef ${HEADER_DEFINE}
+#define ${HEADER_DEFINE}
 
 #include <memory>
 #include <rocket/common/exception.h>
@@ -19,15 +20,14 @@
 #include <sstream>
 #include <string>
 
-namespace $ {PROJECT_NAME}
+namespace ${PROJECT_NAME}
 {
 
 	class BusinessException : public rocket::RocketException {
 	public:
-		BusinessException(long long code, const std::string& err_info,
+		BusinessException(int code, const std::string& err_info,
 		                  const std::string& file_name, int line)
-		    : m_error_code(code)
-		    , m_error_info(err_info)
+		    : rocket::RocketException(code, err_info)
 		    , m_file_name(file_name)
 		    , m_line(line) {
 
@@ -39,26 +39,17 @@ namespace $ {PROJECT_NAME}
 		~BusinessException() {}
 
 		void handle() override {
-			rocket::RpcInterface* interface = rocket::RunTime::getRuntime().getRpcInterface();
-			if (interface) {
-				interface->setError(m_error_code, m_error_info);
-			}
+	
 		}
-		const char* what() { return m_error_info.c_str(); }
+		const char* what() { return m_err_info.c_str(); }
 
-		std::string error() { return m_error_info; }
-
-		long long code() { return m_error_code; }
 
 		std::string file_name() { return m_file_name; }
 
 		int line() { return m_line; }
 
 	private:
-		Interface* m_interface{NULL};
-		long long m_error_code{0};
-		std::string m_error_info;
-
+		
 		std::string m_file_name;
 		int m_line{0};
 	};

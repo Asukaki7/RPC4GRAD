@@ -23,6 +23,7 @@ public:
 	void setMethodName(std::string);
 	void setRpcInterface(RpcInterface*);
 	RpcInterface* getRpcInterface() const;
+	
 private:
 	std::string m_msgId;
 	std::string m_method_name;

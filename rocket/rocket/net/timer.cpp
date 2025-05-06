@@ -82,7 +82,7 @@ void Timer::onTimer() {
 	// 处理缓冲区数据，防止下一次继续触发可读事件
 	// TODO 为什么需要处理缓冲区数据 怎么处理
 
-	DEBUGLOG("ontimer trigger");
+	// DEBUGLOG("ontimer trigger");
 	char buf[8];
 	while (1) {
 		if ((read(m_fd, buf, 8) == -1) && errno == EAGAIN) {

@@ -4,7 +4,8 @@
 * ${FILE_NAME}
 * ${CREATE_TIME}
 * Gnerated by rocket framework rocket_generator.py
-* Warning do not edit!!!
+* File will not generate while exist
+* Allow editing
 
 *******************************************************/
 
@@ -27,8 +28,8 @@ namespace ${PROJECT_NAME} {
 class ${CLASS_NAME} : public Interface{
  public:
 
-  ${CLASS_NAME}(const ${REQUEST_TYPE}& request, ${RESPONSE_TYPE}& response, 
-    rocket::RpcClosure& done, const rocket::RpcController& controller);
+  ${CLASS_NAME}(const ${REQUEST_TYPE}* request, ${RESPONSE_TYPE}* response, 
+    rocket::RpcClosure* done, rocket::RpcController* controller);
 
   ~${CLASS_NAME}();
 public:
@@ -36,17 +37,12 @@ public:
   virtual void run() override;
 
   // set error code and error into to response message 
-  virtual void setError(long long code, const std::string& err_info) override;
-
-  // reply to client  
-  // you should call this when you want to set response back
-  // it means this is rpc method done
-  virtual void reply() override;
+  virtual void set_error(int code, const std::string& err_info) override;
 
  private:
-  const ${REQUEST_TYPE}& m_request;       // request object fron client
+  const ${REQUEST_TYPE}* m_request{nullptr};       // request object fron client
 
-  ${RESPONSE_TYPE}& m_response;           // response object that reply to client
+  ${RESPONSE_TYPE}* m_response{nullptr};           // response object that reply to client
 
 };
 

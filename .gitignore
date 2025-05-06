@@ -2,6 +2,7 @@ tinyxml
 protobuf-3.19.4
 student_server
 .vscode/
+.VSCodeCounter/
 rocket/build
 rocket/bin
 rocket/lib

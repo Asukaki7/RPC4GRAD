@@ -1,5 +1,5 @@
 #include "rocket/net/rpc/rpc_dispatcher.h"
-#include "abstract_protocol.h"
+#include "rocket/net/coder/abstract_protocol.h"
 #include "rocket/common/error_code.h"
 #include "rocket/common/log.h"
 #include "rocket/common/run_time.h"
@@ -111,7 +111,6 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request,
 		if (!rsp_msg->SerializeToString(&(response_protocol->getPbBody()))) {
 			ERRORLOG("[%s] | serilize error, origin message [%s]", request_protocol->getMsgId().c_str(), rsp_msg->ShortDebugString().c_str());
 			setTinyPBErrorCode(response_protocol, ERROR_FAILED_SERIALIZE, "serialize response error");
-			
 		} else {
 			response_protocol->setErrCode(0);
 			response_protocol->setErrInfo("");

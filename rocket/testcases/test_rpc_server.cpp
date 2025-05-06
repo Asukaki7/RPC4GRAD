@@ -34,6 +34,11 @@ public:
 			return;
 		}
 		response->set_order_id("20250422");
+        if (done) {
+            done->Run();
+            delete done;
+            done = nullptr;
+        }
 	}
 	~OrderImpl() {}
 };

@@ -7,7 +7,9 @@
 #include "rocket/net/fd_event.h"
 #include "rocket/net/io_thread.h"
 #include "rocket/net/io_thread_group.h"
+#include "rocket/net/timer_event.h"
 #include <atomic>
+#include <memory>
 
 namespace rocket {
 
@@ -23,17 +25,32 @@ TcpServer::~TcpServer() {
 		delete m_main_event_loop;
 		m_main_event_loop = nullptr;
 	}
+	if (m_io_thread_group) {
+		delete m_io_thread_group;
+		m_io_thread_group = nullptr;
+	}
+	if (m_listen_fd_event) {
+		delete m_listen_fd_event;
+		m_listen_fd_event = nullptr;
+	}
 }
+
 void TcpServer::init() {
 	m_acceptor = std::make_shared<TcpAcceptor>(m_local_addr);
 
 	m_main_event_loop = EventLoop::getCurrentEventLoop();
-	m_io_thread_group = new IOthreadGroup(Config::GetGlobalConfig()->m_io_threads);
+	m_io_thread_group =
+	    new IOthreadGroup(Config::GetGlobalConfig()->m_io_threads);
 
 	m_listen_fd_event = new FdEvent(m_acceptor->getListenFd());
 	m_listen_fd_event->listen(FdEvent::IN_EVENT,
 	                          std::bind(&TcpServer::onAccept, this));
 	m_main_event_loop->addEpollEvent(m_listen_fd_event);
+
+	m_clear_client_timer_event = std::make_shared<TimerEvent>(
+	    5000, true, std::bind(&TcpServer::clearClientTimer, this));
+
+	m_main_event_loop->addTimerEvent(m_clear_client_timer_event);
 }
 
 void TcpServer::start() {
@@ -56,6 +73,17 @@ void TcpServer::onAccept() {
 
 	m_client.insert(connection);
 	INFOLOG("TcpServer succ get client, fd = [%d]", client_fd);
+}
+
+void TcpServer::clearClientTimer() {
+	for (auto it = m_client.begin(); it != m_client.end();) {
+		if ((*it) != nullptr && (*it).use_count() > 0 && (*it)->getState() == TcpState::Closed) {
+			DEBUGLOG("TcpConnection [fd:%d] will delete, state = %d", (*it)->getFd(), (*it)->getState());
+			it = m_client.erase(it);
+		} else {
+			++it;
+		}
+	}
 }
 
 } // namespace rocket

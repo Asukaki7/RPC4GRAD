@@ -4,14 +4,13 @@
 #include "rocket/common/exception.h"
 #include "rocket/common/log.h"
 #include "rocket/common/run_time.h"
+#include "rocket/net/rpc/rpc_interface.h"
 #include <functional>
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/callback.h>
 #include <memory>
 
 namespace rocket {
-
-class RpcInterface;
 
 class RpcClosure : public google::protobuf::Closure {
 public:
@@ -28,13 +27,31 @@ public:
 			RunTime::getRuntime().setRpcInterface(m_interface.get());
 		}
 		try {
-			if (m_cb) {
+			if (m_cb != nullptr) {
 				m_cb();
 			}
+			if (m_interface) {
+				m_interface.reset();
+			}
 		} catch (RocketException& e) {
-			ERRORLOG("Rocket Exception[%s], deal handle", e.what());
+			ERRORLOG("RocketException exception[%s], deal handle", e.what());
+			e.handle();
+			if (m_interface) {
+				m_interface->set_error(e.errorCode(), e.errorInfo());
+				m_interface.reset();
+			}
 		} catch (std::exception& e) {
-			ERRORLOG("std::exception error, error info: %s", e.what());
+			ERRORLOG("std::exception[%s]", e.what());
+			if (m_interface) {
+				m_interface->set_error(-1, "unkonwn std::exception");
+				m_interface.reset();
+			}
+		} catch (...) {
+			ERRORLOG("Unkonwn exception");
+			if (m_interface) {
+				m_interface->set_error(-1, "unkonwn exception");
+				m_interface.reset();
+			}
 		}
 	}
 

@@ -4,7 +4,8 @@
 * ${FILE_NAME}
 * ${CREATE_TIME}
 * Gnerated by rocket framework rocket_generator.py
-* Warning do not edit!!!
+* File will not generate while exist
+* Allow editing
 
 *******************************************************/
 
@@ -16,35 +17,33 @@ ${INCLUDE_PB_HEADER}
 
 namespace ${PROJECT_NAME} {
 
-${CLASS_NAME}::${CLASS_NAME}(const ${REQUEST_TYPE}& request, ${RESPONSE_TYPE}& response, 
-  rocket::RpcClosure& done, const rocket::RpcController& controller)
-  : Interface(done, controller), 
+${CLASS_NAME}::${CLASS_NAME}(const ${REQUEST_TYPE}* request, ${RESPONSE_TYPE}* response, 
+  rocket::RpcClosure* done, rocket::RpcController* controller)
+  : Interface(dynamic_cast<const google::protobuf::Message*>(request), 
+    dynamic_cast<google::protobuf::Message*>(response),
+    done, controller), 
     m_request(request), 
     m_response(response) {
-  APPINFOLOG("In|request:{%s}", request.ShortDebugString().c_str());           \    
+  APPINFOLOG("In|request:{%s}", request->ShortDebugString().c_str());
 }
 
 ${CLASS_NAME}::~${CLASS_NAME}() {
-
+  APPINFOLOG("Out|response:{%s}", m_response->ShortDebugString().c_str());
 }
 
 void ${CLASS_NAME}::run() {
   //
   // Run your business at here
-  // m_reponse.set_xxx(xxx);
-  // you should call reply() method at the end of business logic to set response back to client
+  // 
 
-  reply();
+  m_response->set_ret_code(0);
+  m_response->set_res_info("OK");
 }
 
-void ${CLASS_NAME}::setError(long long code, const std::string& err_info) {
-  m_response.set_ret_code(code);
-  m_response.set_res_info(err_info);
-}
 
-void ${CLASS_NAME}::reply() {
-  APPINFOLOG("Out|response:{%s}", m_response.ShortDebugString().c_str());     \
-  Interface::reply();
+void ${CLASS_NAME}::set_error(int code, const std::string& err_info) {
+	m_response->set_ret_code(code);
+	m_response->set_res_info(err_info);
 }
 
 }

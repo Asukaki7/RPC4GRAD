@@ -24,7 +24,6 @@
 
 namespace rocket {
 
-
 static Config* g_config = nullptr;
 Config* Config::GetGlobalConfig() {
     return g_config;
@@ -46,17 +45,17 @@ Config::Config() {
 
 
 Config::Config(const char* xmlfile) {
-	TiXmlDocument* xml_document = new TiXmlDocument();
+	m_xml_document = new TiXmlDocument();
 
-	bool rt = xml_document->LoadFile(xmlfile);
+	bool rt = m_xml_document->LoadFile(xmlfile);
 
 	if (!rt) {
 		std::cout << "start rocket server error, failed to read config file"
-		          << xmlfile << std::endl;
+		          << xmlfile << "error: " << m_xml_document->ErrorDesc() << std::endl;
 		std::exit(0);
 	}
 	
-	READ_XML_NODE(root, xml_document);
+	READ_XML_NODE(root, m_xml_document);
 	READ_XML_NODE(log, root_node);
 	READ_XML_NODE(server, root_node);
 
@@ -88,4 +87,12 @@ Config::Config(const char* xmlfile) {
 	printf("server -- config: port: %d, io_threas: %d\n", m_port, m_io_threads);
 
 }
+
+Config::~Config() {
+	if (m_xml_document) {
+		delete m_xml_document;
+		m_xml_document = nullptr;
+	}
+}
+
 } // namespace rocket

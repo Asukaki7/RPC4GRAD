@@ -10,6 +10,7 @@
 #include "rocket/net/TCP/tcp_server.h"
 #include "rocket/net/rpc/rpc_controller.h"
 #include "rocket/net/timer_event.h"
+#include "rocket/common/run_time.h"
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/message.h>
 #include <google/protobuf/service.h>
@@ -40,9 +41,19 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
 	}
 
 	if (my_controller->GetMsgId().empty()) {
-		req_protocol->setMsgId(MsgUtil::generateMsgId());
-		my_controller->SetMsgId(req_protocol->getMsgId());
+		// 先从 runtime 里面取, 取不到再生成一个
+		// 这样的目的是为了实现 msg_id 的透传，假设服务 A 调用了 B，那么同一个 msgid 
+		// 可以在服务 A 和 B 之间串起来，方便日志追踪
+		auto msg_id = RunTime::getRuntime().getMsgId();
+		if (!msg_id.empty()) {
+			req_protocol->setMsgId(msg_id);
+			my_controller->SetMsgId(msg_id);
+		} else {
+			req_protocol->setMsgId(MsgUtil::generateMsgId());
+			my_controller->SetMsgId(req_protocol->getMsgId());
+		}
 	} else {
+		// 如果msg_id不为空，则使用msg_id
 		req_protocol->setMsgId(my_controller->GetMsgId());
 	}
 

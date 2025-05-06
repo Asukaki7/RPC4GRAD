@@ -76,6 +76,7 @@ public:
 
 	void reply(std::vector<AbstractProtocol::s_ptr>& messages);
 	
+	int getFd() const { return m_fd; }
 private:
 	NetAddr::s_ptr m_local_addr;
 	NetAddr::s_ptr m_remote_addr;

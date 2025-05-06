@@ -14,8 +14,8 @@ TimerEvent::TimerEvent(int interval, bool is_repeated, std::function<void()> cb)
 void TimerEvent::resetArriveTime() {
     auto a = getNowMs();
 	m_arrive_time = a + m_interval;
-    DEBUGLOG("success create timer event, will execute at [%lld]",
-        m_arrive_time);
+    // DEBUGLOG("success create timer event, will execute at [%lld]",
+    //     m_arrive_time);
 }
 
 } // namespace rocket

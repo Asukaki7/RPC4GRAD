@@ -7,6 +7,7 @@
 #include "rocket/net/eventLoop.h"
 #include "rocket/net/fd_event.h"
 #include "rocket/net/io_thread_group.h"
+#include "rocket/net/timer_event.h"
 #include <atomic>
 #include <set>
 
@@ -18,6 +19,8 @@ public:
 	~TcpServer();
 
 	void start();
+
+	void clearClientTimer();
 
 private:
 	void init();
@@ -36,6 +39,8 @@ private:
 	std::atomic<int> m_client_counts{};
 
 	std::set<TcpConnection::s_ptr> m_client;
+
+	TimerEvent::s_ptr m_clear_client_timer_event;
 };
 
 } // namespace rocket
