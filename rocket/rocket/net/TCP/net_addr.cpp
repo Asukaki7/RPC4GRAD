@@ -54,8 +54,25 @@ std::string IPNetAddr::toString() {
 }
 
 bool IPNetAddr::checkValid() {
-	return !m_ip.empty() && (m_port >= 0 && m_port <= 65535) &&
-	       (inet_addr(m_ip.c_str()) != INADDR_NONE);
+	return CheckValid(toString());
+}
+
+bool IPNetAddr::CheckValid(const std::string& addr) {
+	size_t i = addr.find_first_of(':');
+	if (i == std::string::npos) {
+		return false;
+	}
+
+	std::string ip = addr.substr(0, i);
+	std::string port = addr.substr(i + 1, addr.size() - i - 1);
+	if (ip.empty() || port.empty()) {
+		return false;
+	}
+
+	if (std::stoi(port) < 0 || std::stoi(port) > 65535) {
+		return false;
+	}
+	return (inet_addr(ip.c_str()) != INADDR_NONE);
 }
 
 } // namespace rocket

@@ -143,6 +143,7 @@ void TcpConnection::execute() {
 			auto it = m_read_done.find(msg_id);
 			if (it != m_read_done.end()) {
 				it->second(result[i]);
+				m_read_done.erase(it);
 			}
 		}
 	}

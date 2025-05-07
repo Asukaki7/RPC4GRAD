@@ -143,9 +143,11 @@ def generate_dir():
     src_interface_path = src_path + '/interface'
     src_service_path = src_path + '/service'
     src_pb_path = src_path + '/pb'
+    src_stub_path = src_path + '/stub'
     src_comm_path = src_path + '/comm'
+    
 
-    dir_list = [proj_path, bin_path, conf_path, log_path, lib_path, obj_path,test_client_path, test_client_tool_path, src_path, src_interface_path, src_service_path, src_pb_path, src_comm_path]
+    dir_list = [proj_path, bin_path, conf_path, log_path, lib_path, obj_path,test_client_path, test_client_tool_path, src_path, src_interface_path, src_service_path, src_pb_path, src_stub_path, src_comm_path]
 
     for dir in dir_list:
         if not os.path.exists(dir):

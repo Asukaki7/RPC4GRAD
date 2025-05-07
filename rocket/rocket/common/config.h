@@ -4,8 +4,16 @@
 #include <map>
 #include <string>
 #include <tinyxml/tinyxml.h>
+#include "rocket/net/TCP/net_addr.h"
 
 namespace rocket {
+
+struct Rpcstub {
+	std::string name;
+	NetAddr::s_ptr addr;
+	int timeout {2000};
+};
+
 class Config {
 public:
 	Config(const char* xmlfile);
@@ -30,6 +38,8 @@ public:
 	int m_io_threads{0};
 
 	TiXmlDocument* m_xml_document{nullptr};
+
+	std::map<std::string, Rpcstub> m_rpc_stubs;
 };
 
 } // namespace rocket

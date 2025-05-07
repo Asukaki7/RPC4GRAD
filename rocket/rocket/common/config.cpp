@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <tinyxml/tinyxml.h>
+#include <utility>
 
 #define READ_XML_NODE(name, root)                                          \
 	TiXmlElement* name##_node = root->FirstChildElement(#name);            \
@@ -83,6 +84,24 @@ Config::Config(const char* xmlfile) {
 
 	m_port = std::stoi(port_str);
 	m_io_threads = std::stoi(io_threads_str);
+
+	TiXmlElement* stubs_node = root_node->FirstChildElement("stubs");
+
+	if (stubs_node) {
+		for (TiXmlElement* node = stubs_node->FirstChildElement("rpc_server");node;node = node->NextSiblingElement("rpc_server")) {
+			Rpcstub stub;
+			stub.name = std::string(node->FirstChildElement("name")->GetText());
+			stub.timeout = std::stoi(std::string(node->FirstChildElement("timeout")->GetText()));
+
+			std::string ip = std::string(node->FirstChildElement("ip")->GetText());
+			int port = std::stoi(std::string(node->FirstChildElement("port")->GetText()));
+
+			if (IPNetAddr::CheckValid(ip + ":" + std::to_string(port))) {
+				stub.addr = std::make_shared<IPNetAddr>(ip, port);
+			}
+			m_rpc_stubs.insert(std::make_pair(stub.name, stub));
+		}
+	}
 
 	printf("server -- config: port: %d, io_threas: %d\n", m_port, m_io_threads);
 

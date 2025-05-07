@@ -1,7 +1,8 @@
 #include "rocket/net/rpc/rpc_controller.h"
 #include "rocket/common/log.h"
-namespace rocket {
 
+
+namespace rocket {
 
 RpcController::RpcController() {
 	INFOLOG("RpcController constructor");
@@ -19,6 +20,7 @@ void RpcController::Reset() {
 	m_remote_addr.reset();
 	m_is_failed = false;
 	m_is_canceled = false;
+	m_is_finished = false;
 	m_timeout = 1000;
 }
 
@@ -26,11 +28,15 @@ bool RpcController::Failed() const { return m_is_failed; }
 void RpcController::SetFailed(const std::string& reason) {
 	m_is_failed = true;
 	m_error_info = reason;
+	m_is_finished = true;
 }
 
 std::string RpcController::ErrorText() const { return m_error_info; }
 
-void RpcController::StartCancel() { m_is_canceled = true; }
+void RpcController::StartCancel() { 
+	m_is_canceled = true;
+	m_is_finished = true;
+}
 bool RpcController::IsCanceled() const { return m_is_canceled; }
 
 void RpcController::NotifyOnCancel(google::protobuf::Closure* callback) {
@@ -47,6 +53,7 @@ void RpcController::SetError(int32_t error_code,
 	m_error_code = error_code;
 	m_error_info = error_info;
 	m_is_failed = true;
+	m_is_finished = true;
 }
 
 int32_t RpcController::GetErrorCode() const { return m_error_code; }
@@ -72,5 +79,9 @@ NetAddr::s_ptr RpcController::GetRemoteAddr() const { return m_remote_addr; }
 void RpcController::SetTimeout(int timeout) { m_timeout = timeout; }
 
 int RpcController::GetTimeout() const { return m_timeout; }
+
+bool RpcController::IsFinished() const { return m_is_finished; }
+
+void RpcController::SetFinished(bool finished) { m_is_finished = finished; }
 
 } // namespace rocket

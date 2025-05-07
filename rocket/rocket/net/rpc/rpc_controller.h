@@ -48,12 +48,20 @@ public:
 	void SetTimeout(int timeout);
 
 	int GetTimeout() const;
+
+	// return true if the rpc call is finished
+	bool IsFinished() const;
+
+	void SetFinished(bool finished);
+
 private:
 	int32_t m_error_code{0};
 	std::string m_error_info;
 	std::string m_msg_id;
+	
 	bool m_is_failed{false};
 	bool m_is_canceled{false};
+	bool m_is_finished{false};
 
 	NetAddr::s_ptr m_local_addr;
 	NetAddr::s_ptr m_remote_addr;

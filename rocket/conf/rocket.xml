@@ -13,4 +13,14 @@
         <port>12345</port>
         <io_threads>4</io_threads>
     </server>
+
+    <stub>
+        <rpc_server>
+        <name></name>
+        <ip></ip>
+        <port></port>
+        </rpc_server>
+    </stub>
 </root>
+
+

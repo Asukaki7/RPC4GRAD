@@ -11,7 +11,7 @@ TimerEvent::TimerEvent(int interval, bool is_repeated, std::function<void()> cb)
 	resetArriveTime();
 }
 
-void TimerEvent::resetArriveTime() {
+void TimerEvent::resetArriveTime() { 
     auto a = getNowMs();
 	m_arrive_time = a + m_interval;
     // DEBUGLOG("success create timer event, will execute at [%lld]",

@@ -3,7 +3,6 @@
 
 #include "rocket/net/TCP/net_addr.h"
 #include "rocket/net/TCP/tcp_client.h"
-#include "rocket/net/timer_event.h"
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/message.h>
 #include <google/protobuf/service.h>
@@ -22,7 +21,7 @@ namespace rocket {
 
 #define NEWRPCCHANNEL(addr, var_name) \
 	std::shared_ptr<rocket::RpcChannel> var_name = \
-		std::make_shared<rocket::RpcChannel>(std::make_shared<rocket::IPNetAddr>(addr)); \
+		std::make_shared<rocket::RpcChannel>(rocket::RpcChannel::FindAddr(addr)); \
 
 #define CALLRPC(addr, stub_name, method_name, controller, request, response, done) \
 {\
@@ -56,10 +55,18 @@ public:
 	google::protobuf::Message* getRequest() const;
 	google::protobuf::Message* getResponse() const;
 	google::protobuf::Closure* getClosure() const;
-	TcpClient* getClient() const;
-	TimerEvent::s_ptr getTimerEvent() const;
+	TcpClient* getTcpClient() const;
 
 	void resetTimerEvent();
+
+public:
+	// 获取addr
+	// 若str 为ip:port 则直接返回
+	// 若str 为服务名，尝试从配置文件里面获取对应的ip:port
+	static NetAddr::s_ptr FindAddr(const std::string& str);
+
+private:
+	void callBack();
 private:
 	NetAddr::s_ptr m_remote_addr{nullptr};
 	NetAddr::s_ptr m_local_addr{nullptr};
@@ -73,7 +80,6 @@ private:
 
 	TcpClient::s_ptr m_client{nullptr};
 
-	TimerEvent::s_ptr m_timer_event{nullptr};
 };
 
 } // namespace rocket

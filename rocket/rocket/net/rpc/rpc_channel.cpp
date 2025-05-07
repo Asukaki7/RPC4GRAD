@@ -1,16 +1,15 @@
 #include "rocket/net/rpc/rpc_channel.h"
-#include "rocket/net/coder/abstract_protocol.h"
-#include "rocket/net/coder/tinyPB_protocol.h"
+#include "rocket/common/config.h"
 #include "rocket/common/error_code.h"
 #include "rocket/common/log.h"
 #include "rocket/common/msg_id_util.h"
+#include "rocket/common/run_time.h"
 #include "rocket/net/TCP/net_addr.h"
 #include "rocket/net/TCP/tcp_client.h"
-#include "rocket/net/TCP/tcp_connection.h"
-#include "rocket/net/TCP/tcp_server.h"
+#include "rocket/net/coder/abstract_protocol.h"
+#include "rocket/net/coder/tinyPB_protocol.h"
 #include "rocket/net/rpc/rpc_controller.h"
 #include "rocket/net/timer_event.h"
-#include "rocket/common/run_time.h"
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/message.h>
 #include <google/protobuf/service.h>
@@ -26,6 +25,22 @@ RpcChannel::RpcChannel(NetAddr::s_ptr remote_addr)
 
 RpcChannel::~RpcChannel() { INFOLOG("RpcChannel::~RpcChannel()"); }
 
+void RpcChannel::callBack() {
+	INFOLOG("RpcChannel::callBack()");
+	RpcController* my_controller =
+	    dynamic_cast<RpcController*>(m_controller.get());
+	if (my_controller->IsFinished()) {
+		return;
+	}
+
+	if (m_closure) {
+		m_closure->Run();
+		if (my_controller) {
+			my_controller->SetFinished(true);
+		}
+	}
+}
+
 void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
                             google::protobuf::RpcController* controller,
                             const google::protobuf::Message* request,
@@ -35,15 +50,29 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
 	    std::make_shared<rocket::TinyPBProtocol>();
 
 	RpcController* my_controller = dynamic_cast<RpcController*>(controller);
-	if (my_controller == nullptr) {
+	if (my_controller == nullptr || request == nullptr || response == nullptr ||
+	    done == nullptr) {
 		ERRORLOG("failed callmethod, RpcController convert error");
+		my_controller->SetError(ERROR_RPC_CHANNEL_INIT_FAILED,
+		                        "controller or request or response NULL");
+		callBack();
 		return;
 	}
 
+	if (m_remote_addr == nullptr) {
+		ERRORLOG("failed get peer addr");
+		my_controller->SetError(ERROR_RPC_CHANNEL_INIT_FAILED,
+		                        "failed get peer addr");
+		callBack();
+		return;
+	}
+
+	m_client = std::make_shared<TcpClient>(m_remote_addr);
+
 	if (my_controller->GetMsgId().empty()) {
 		// 先从 runtime 里面取, 取不到再生成一个
-		// 这样的目的是为了实现 msg_id 的透传，假设服务 A 调用了 B，那么同一个 msgid 
-		// 可以在服务 A 和 B 之间串起来，方便日志追踪
+		// 这样的目的是为了实现 msg_id 的透传，假设服务 A 调用了 B，那么同一个
+		// msgid 可以在服务 A 和 B 之间串起来，方便日志追踪
 		auto msg_id = RunTime::getRuntime().getMsgId();
 		if (!msg_id.empty()) {
 			req_protocol->setMsgId(msg_id);
@@ -66,6 +95,7 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
 		my_controller->SetError(ERROR_RPC_CHANNEL_NOT_INIT, err_info);
 		ERRORLOG("[%s] | %s, rpc channel not inited",
 		         req_protocol->getMsgId().c_str(), err_info.c_str());
+		callBack();
 		return;
 	}
 
@@ -76,84 +106,86 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
 		ERRORLOG("%s | %s, origin request [%s]",
 		         req_protocol->getMsgId().c_str(), err_info.c_str(),
 		         request->DebugString().c_str());
+		callBack();
 		return;
 	}
 
 	s_ptr channel = shared_from_this();
 
+	TimerEvent::s_ptr timer_event = std::make_shared<TimerEvent>(
+	    my_controller->GetTimeout(), false, [my_controller, channel]() mutable {
+		    INFOLOG("[%s] | rpc call timeout, error code [%d], error info [%s]",
+		            my_controller->GetMsgId().c_str(),
+		            my_controller->GetErrorCode(),
+		            my_controller->GetErrorInfo().c_str());
+		    if (my_controller->IsFinished()) {
+			    channel.reset();
+			    return;
+		    }
+		    my_controller->StartCancel();
+		    my_controller->SetError(
+		        ERROR_RPC_CALL_TIMEOUT,
+		        "rpc call timeout " +
+		            std::to_string(my_controller->GetTimeout()) + "ms");
+		    ERRORLOG(
+		        "[%s] | rpc call timeout, error code [%d], error info [%s]",
+		        my_controller->GetMsgId().c_str(),
+		        my_controller->GetErrorCode(),
+		        my_controller->GetErrorInfo().c_str());
 
-	m_timer_event = std::make_shared<TimerEvent>(my_controller->GetTimeout(), false, [my_controller, channel]() mutable {
-		my_controller->StartCancel();
-		my_controller->SetError(ERROR_RPC_CALL_TIMEOUT, "rpc call timeout " + std::to_string(my_controller->GetTimeout()) + "ms");
-		ERRORLOG("[%s] | rpc call timeout, error code [%d], error info [%s]", my_controller->GetMsgId().c_str(), my_controller->GetErrorCode(), my_controller->GetErrorInfo().c_str());
+		    channel->callBack();
 
-		if (channel->getClosure() != nullptr) {
-			channel->getClosure()->Run();
-		}
-		channel.reset();
-	});
+		    channel.reset();
+	    });
 
-	m_client->addTimerEvent(m_timer_event);
+	m_client->addTimerEvent(timer_event);
 	// 2. 发送rpc请求
 
-	m_client->connect([req_protocol, channel]() mutable {
-		auto my_controller =
-		    dynamic_cast<RpcController*>(channel->getController());
-		if (my_controller->IsCanceled()) {
-			channel->getTimerEvent()->setCanceled(true);
-			return;
-		}
-		if (channel->m_client->getConnectErrorCode() != 0) {
-			my_controller->SetError(channel->m_client->getConnectErrorCode(),
-			                        channel->m_client->getConnectErrorMsg());
+	m_client->connect([req_protocol, this]() mutable {
+		auto my_controller = dynamic_cast<RpcController*>(getController());
+		
+		if (getTcpClient()->getConnectErrorCode() != 0) {
+			my_controller->SetError(getTcpClient()->getConnectErrorCode(),
+			                        getTcpClient()->getConnectErrorMsg());
 			ERRORLOG("%s | connect error, error code[%d], error info[%s], peer "
 			         "addr[%s]",
 			         req_protocol->getMsgId().c_str(),
 			         my_controller->GetErrorCode(),
 			         my_controller->GetErrorInfo().c_str(),
-			         channel->m_client->getRemoteAddr()->toString().c_str());
-			
-			// 取消定时任务
-			channel->getTimerEvent()->setCanceled(true);
-			if (channel->getClosure() != nullptr) {
-				channel->getClosure()->Run();
-			}
-			channel.reset();
+			         getTcpClient()->getRemoteAddr()->toString().c_str());
+
+			callBack();
 			return;
 		}
 
 		INFOLOG("[%s] | connect success, send request, remote addr [%s], local "
 		        "addr [%s]",
 		        req_protocol->getMsgId().c_str(),
-		        channel->m_client->getRemoteAddr()->toString().c_str(),
-		        channel->m_client->getLocalAddr()->toString().c_str());
+		        getTcpClient()->getRemoteAddr()->toString().c_str(),
+		        getTcpClient()->getLocalAddr()->toString().c_str());
 
-		channel->m_client->writeMessage(req_protocol, [channel, req_protocol,
-		                                               my_controller](
-		                                                  AbstractProtocol::
-		                                                      s_ptr) mutable {
+		getTcpClient()->writeMessage(req_protocol, [this, req_protocol,
+		                                            my_controller](
+		                                               AbstractProtocol::
+		                                                   s_ptr) mutable {
 			INFOLOG("[%s] | send request success. call method name [%s]",
 			        req_protocol->getMsgId().c_str(),
 			        req_protocol->getMethodName().c_str());
 
-			channel->m_client->readMessage(
+			getTcpClient()->readMessage(
 			    req_protocol->getMsgId(),
-			    [channel, my_controller](AbstractProtocol::s_ptr msg) mutable {
+			    [this, my_controller](AbstractProtocol::s_ptr msg) mutable {
 				    std::shared_ptr<rocket::TinyPBProtocol> rsp_protocol =
 				        std::dynamic_pointer_cast<rocket::TinyPBProtocol>(msg);
-				    INFOLOG(
-				        "[%s] | success get rpc response, call method "
-				        "name [%s], remote addr [%s], local addr [%s]",
-				        rsp_protocol->getMsgId().c_str(),
-				        rsp_protocol->getMethodName().c_str(),
-				        channel->m_client->getRemoteAddr()->toString().c_str(),
-				        channel->m_client->getLocalAddr()->toString().c_str());
+				    INFOLOG("[%s] | success get rpc response, call method "
+				            "name [%s], remote addr [%s], local addr [%s]",
+				            rsp_protocol->getMsgId().c_str(),
+				            rsp_protocol->getMethodName().c_str(),
+				            getTcpClient()->getRemoteAddr()->toString().c_str(),
+				            getTcpClient()->getLocalAddr()->toString().c_str());
 
-					// 当成功读取到回包后，取消定时任务
-					channel->getTimerEvent()->setCanceled(true);
-					channel->resetTimerEvent();
 				    // 3. 反序列化response
-				    if (!(channel->getResponse()->ParseFromString(
+				    if (!(getResponse()->ParseFromString(
 				            rsp_protocol->getPbBody()))) {
 					    ERRORLOG(
 					        "[%s] | failed deserialize response, call method "
@@ -162,7 +194,7 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
 					        rsp_protocol->getMethodName().c_str());
 					    my_controller->SetError(ERROR_FAILED_DESERIALIZE,
 					                            "failed deserialize response");
-					    channel.reset();
+					    callBack();
 					    return;
 				    }
 
@@ -175,23 +207,19 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
 					             rsp_protocol->getErrInfo().c_str());
 					    my_controller->SetError(rsp_protocol->getErrCode(),
 					                            rsp_protocol->getErrInfo());
-					    channel.reset();
+					    callBack();
 					    return;
 				    }
 
-				    INFOLOG(
-				        "[%s] | call rpc method [%s] success, response [%s]",
-				        rsp_protocol->getMsgId().c_str(),
-				        rsp_protocol->getMethodName().c_str(),
-				        channel->getResponse()->ShortDebugString().c_str());
-					
-					
-					
+				    INFOLOG("%s | call rpc success, call method name[%s], peer "
+				            "addr[%s], local addr[%s]",
+				            rsp_protocol->getMsgId().c_str(),
+				            rsp_protocol->getMethodName().c_str(),
+				            getTcpClient()->getRemoteAddr()->toString().c_str(),
+				            getTcpClient()->getLocalAddr()->toString().c_str());
+
 				    // 4. 执行回调函数
-				    if (channel->getClosure() != nullptr) {
-					    channel->getClosure()->Run();
-				    }
-				    channel.reset();
+				    callBack();
 			    });
 		});
 	});
@@ -224,7 +252,24 @@ google::protobuf::Message* RpcChannel::getResponse() const {
 google::protobuf::Closure* RpcChannel::getClosure() const {
 	return m_closure.get();
 }
-TcpClient* RpcChannel::getClient() const { return m_client.get(); }
-TimerEvent::s_ptr RpcChannel::getTimerEvent() const { return m_timer_event; }
-void RpcChannel::resetTimerEvent() { m_timer_event = nullptr; }
+TcpClient* RpcChannel::getTcpClient() const { return m_client.get(); }
+
+
+NetAddr::s_ptr RpcChannel::FindAddr(const std::string& str) {
+	if (IPNetAddr::CheckValid(str)) {
+		return std::make_shared<IPNetAddr>(str);
+	} else {
+		auto it = Config::GetGlobalConfig()->m_rpc_stubs.find(str);
+		if (it != Config::GetGlobalConfig()->m_rpc_stubs.end()) {
+			INFOLOG("find addr [%s] in global config of str [%s]",
+			        it->second.addr->toString().c_str(), str.c_str());
+			return it->second.addr;
+		} else {
+			ERRORLOG("not find addr in global config of str [%s]", str.c_str());
+			return nullptr;
+		}
+	}
+	return nullptr;
+}
+
 } // namespace rocket

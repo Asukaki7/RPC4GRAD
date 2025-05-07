@@ -32,6 +32,6 @@ constexpr int ERROR_METHOD_NOT_FOUND = RPC_ERROR_PREFIX(0009); // RPC方法未�
 constexpr int ERROR_PARSE_SERVICE_NAME = RPC_ERROR_PREFIX(0010); // RPC解析服务名失败
 constexpr int ERROR_RPC_CHANNEL_NOT_INIT = RPC_ERROR_PREFIX(0011); // RPC channel未初始化
 constexpr int ERROR_RPC_CHANNEL_ALREADY_INIT = RPC_ERROR_PREFIX(0012); // RPC channel已初始化
-
+constexpr int ERROR_RPC_CHANNEL_INIT_FAILED = RPC_ERROR_PREFIX(0013); // RPC 调用时候对端地址异常
 
 #endif
