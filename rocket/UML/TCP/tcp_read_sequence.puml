@@ -1,0 +1,42 @@
+@startuml TCP数据读取序列
+
+actor "发送方" as Sender
+participant "网络" as Network
+participant "接收方操作系统内核" as ReceiverKernel
+participant "Socket接收缓冲区" as SocketBuffer
+participant "事件循环" as EventLoop
+participant "TCP连接" as TcpConn
+participant "TCP缓冲区" as InBuffer
+
+== 数据传输 ==
+Sender -> Network: 发送数据
+Network -> ReceiverKernel: 数据到达接收方
+ReceiverKernel -> SocketBuffer: 存储在socket接收缓冲区
+
+== 事件检测 ==
+EventLoop -> EventLoop: 在事件循环中监控文件描述符
+EventLoop -> EventLoop: 检测EPOLLIN事件
+EventLoop -> TcpConn: 调用注册的onRead()回调
+activate TcpConn
+
+== 数据读取 ==
+loop 直到所有数据读取完毕或遇到EAGAIN
+    TcpConn -> InBuffer: 检查缓冲区空间
+    alt 缓冲区空间不足
+        TcpConn -> InBuffer: resizeBuffer()增加容量
+    end
+    
+    TcpConn -> SocketBuffer: read()系统调用读取数据
+    SocketBuffer --> TcpConn: 返回读取的字节数(rt)
+    TcpConn -> InBuffer: moveWriteIndex(rt)
+end
+
+alt 连接关闭（read返回0）
+    TcpConn -> TcpConn: clear()
+else 正常完成读取
+    TcpConn -> TcpConn: execute()处理接收到的数据
+end
+
+deactivate TcpConn
+
+@enduml 

@@ -1,0 +1,78 @@
+@startuml EventLoop
+
+
+title EventLoop Module and Related Components
+
+
+
+  class EventLoop {
+    - m_epoll_fd: int
+    - m_wakeup_fd_event: WakeupFdEvent*
+    - m_timer: Timer*
+    - m_pending_tasks: std::queue<std::function<void()>>
+    + EventLoop()
+    + ~EventLoop()
+    + loop()
+    + wakeup()
+    + stop()
+    + addEpollEvent(event: FdEvent*)
+    + deleteEpollEvent(event: FdEvent*)
+    + addTask(cb: std::function<void()>)
+    + addTimerEvent(event: TimerEvent::s_ptr)
+    + {static} getCurrentEventLoop(): EventLoop*
+  }
+
+  class FdEvent {
+    - m_fd: int
+    - m_read_callback: std::function<void()>
+    - m_write_callback: std::function<void()>
+    + FdEvent(fd: int)
+    + listen(event_type: TriggerEvent, callback: std::function<void()>)
+    + getFd(): int
+  }
+
+  enum TriggerEvent {
+    IN_EVENT
+    OUT_EVENT
+    ERROR_EVENT
+  }
+  FdEvent o-- 事件触发
+
+  class WakeupFdEvent extends FdEvent {
+    + WakeupFdEvent(fd: int)
+    + wakeup()
+  }
+
+  class TimerEvent {
+    - m_arrive_time: int64_t
+    - m_task: std::function<void()>
+    + TimerEvent(interval: int, is_repeated: bool, cb: std::function<void()>)
+    + getArriveTime(): int64_t
+    + getCallback(): std::function<void()>
+  }
+
+  class Timer extends FdEvent {
+    - m_pending_events: std::multimap<int64_t, TimerEvent::s_ptr>
+    + Timer()
+    + addTimerEvent(timer_event: TimerEvent::s_ptr)
+    + onTimer()
+  }
+
+  class IOThread {
+    - m_event_loop: EventLoop*
+    + IOThread()
+    + ~IOThread()
+    + geteventloop(): EventLoop*
+    + start()
+  }
+
+  EventLoop  *--  WakeupFdEvent 
+  EventLoop  *--  Timer 
+  EventLoop  *--  FdEvent 
+
+  Timer  o--  TimerEvent 
+
+  IOThread  *-- EventLoop 
+
+
+@enduml

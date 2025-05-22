@@ -1,0 +1,51 @@
+@startuml
+title 非阻塞TCP三次握手与连接建立
+
+'=== 参与者定义 ===
+actor   ClientApp          as "Client (TcpClient)"
+participant ClientEL       as "Client EventLoop"
+participant ClientTCP      as "TCP/IP Stack\n(Client)"
+participant ServerTCP      as "TCP/IP Stack\n(Server)"
+participant ServerMainEL   as "Server Main\nEventLoop"
+participant TcpAcceptor    as "TcpAcceptor"
+participant TcpServer      as "TcpServer"
+participant ServerIOEL     as "I/O EventLoop\n(Server)"
+participant TcpConnection  as "TcpConnection"
+
+'=== 客户端发起连接 ===
+ClientApp -> ClientApp: socket()\nconnect(serverAddr)\n(非阻塞)
+ClientApp -> ClientEL  : 注册socket\n(监听*可写*事件)
+activate ClientEL
+
+'=== 三次握手（网络层面） ===
+ClientEL  -> ClientTCP  : SYN
+ClientTCP -> ServerTCP  : SYN
+activate ServerTCP
+ServerTCP -> ClientTCP  : SYN‑ACK
+deactivate ServerTCP
+ClientTCP -> ServerTCP  : ACK
+
+'=== 服务器侧接受连接 ===
+ServerTCP -> ServerMainEL : 新数据包 (SYN)✔
+activate ServerMainEL
+ServerMainEL -> TcpAcceptor : 描述符可读\nhandleRead()
+activate TcpAcceptor
+TcpAcceptor -> TcpAcceptor : accept() → connected_fd
+TcpAcceptor -> TcpServer   : onNewConnection(connected_fd)
+deactivate TcpAcceptor
+
+'=== 创建连接对象并注册到 IO EventLoop ===
+activate TcpServer
+TcpServer  -> TcpConnection : 构造(connected_fd)
+TcpServer  -> ServerIOEL    : 注册connected_fd
+deactivate TcpServer
+deactivate ServerMainEL
+
+'=== 客户端侧确认连接已建立 ===
+ClientTCP -> ClientEL  : socket*可写*\nSO_ERROR = 0
+ClientEL  --> ClientApp: onConnectSuccess()
+deactivate ClientEL
+
+'=== 客户端创建/准备 TcpConnection ===
+ClientApp -> TcpConnection : 创建/准备
+@enduml

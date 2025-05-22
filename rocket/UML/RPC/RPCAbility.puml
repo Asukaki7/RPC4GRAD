@@ -1,0 +1,30 @@
+@startuml
+skinparam componentStyle rectangle
+title RPC模块核心功能整合框图
+
+
+package "RPCModule" {
+
+    rectangle "A. 通信通道管理 " as RpcChannel {
+    }
+
+    rectangle "B. RPC调用执行控制 " as RpcController {
+       
+    }
+
+    rectangle "C. 服务端请求处理与服务执行" as RpcDispatcher {
+       
+    }
+
+    rectangle "D. 其他功能" as CoreSupport {
+       
+    }
+
+    
+}
+
+
+
+
+
+@enduml

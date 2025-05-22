@@ -1,0 +1,83 @@
+@startuml Coder Module Class Diagram
+
+package "rocket::net::coder" {
+  abstract class AbstractProtocol {
+    # m_msg_id: string
+    + getMsgId(): string
+    + setMsgId(msg_id: string): void
+    + {abstract} ~AbstractProtocol()
+  }
+  
+  abstract class AbstractCoder {
+    + {abstract} encode(message: vector<AbstractProtocol::s_ptr>&, out_buffer: TcpBuffer::s_ptr): void
+    + {abstract} decode(out_message: vector<AbstractProtocol::s_ptr>&, buffer: TcpBuffer::s_ptr): void
+    + {abstract} ~AbstractCoder()
+  }
+  
+  class TinyPBProtocol {
+    + {static} PB_START: char = 0x02
+    + {static} PB_END: char = 0x03
+    - m_pk_length: int32_t
+    - m_msg_id_len: int32_t
+    - m_method_name_len: int32_t
+    - m_method_name: string
+    - m_err_code: int32_t
+    - m_err_info_len: int32_t
+    - m_err_info: string
+    - m_pb_body: string
+    - m_check_sum: int32_t
+    - m_parase_success: bool
+    + getPkLength(): int32_t
+    + setPkLength(pk_length: int32_t): void
+    + getMethodName(): string
+    + setMethodName(method_name: string): void
+    + getErrCode(): int32_t
+    + setErrCode(err_code: int32_t): void
+    + getErrInfo(): string
+    + setErrInfo(err_info: string): void
+    + getPbBody(): string&
+    + setPbBody(pb_body: string): void
+    + getCheckSum(): int32_t
+    + setCheckSum(check_sum: int32_t): void
+    + getParaseSuccess(): bool
+    + setParaseSuccess(parase_success: bool): void
+  }
+  
+  class TinyPBCoder {
+    - encodeTinyPB(message: TinyPBProtocol::s_ptr, len: int32_t&): const char*
+    + encode(message: vector<AbstractProtocol::s_ptr>&, out_buffer: TcpBuffer::s_ptr): void
+    + decode(out_message: vector<AbstractProtocol::s_ptr>&, buffer: TcpBuffer::s_ptr): void
+  }
+  
+  AbstractProtocol <|-- TinyPBProtocol
+  AbstractCoder <|-- TinyPBCoder
+  
+  TinyPBCoder ..> TinyPBProtocol: uses >
+}
+
+class TcpBuffer {
+  + writeToBuffer(buf: const char*, size: int): void
+  + readFromBuffer(re: vector<char>&, size: int): void
+  + readAble(): int
+  + writeAble(): int
+}
+
+TcpBuffer <.. AbstractCoder: uses >
+
+note bottom of AbstractProtocol
+  Base class for all protocol message types
+end note
+
+note bottom of AbstractCoder
+  Interface for encoding/decoding protocol messages
+end note
+
+note bottom of TinyPBProtocol
+  Protocol implementation for TinyPB format
+end note
+
+note bottom of TinyPBCoder
+  Implements encoding/decoding for TinyPB format
+end note
+
+@enduml 

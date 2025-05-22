@@ -15,9 +15,9 @@ void* func(void* arg) {
 
 int main() {
 
-	rocket::Config::setGlobalConfig("../conf/rocket.xml");
+	rocket::Config::setGlobalConfig(nullptr);
 
-	rocket::Logger::InitGlobalLogger();
+	rocket::Logger::InitGlobalLogger(0);
 
 	pthread_t thread;
 	pthread_create(&thread, NULL, &func, NULL);

@@ -12,7 +12,6 @@ RpcController::~RpcController() {
 }
 
 void RpcController::Reset() {
-
 	m_error_code = 0;
 	m_error_info.clear();
 	m_msg_id.clear();

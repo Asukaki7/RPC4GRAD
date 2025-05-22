@@ -1,6 +1,7 @@
 tinyxml
 protobuf-3.19.4
 student_server
+googletest
 .vscode/
 .VSCodeCounter/
 rocket/build
@@ -12,3 +13,5 @@ rocket/.cache
 rocket/CMakePresets.json
 .clangd
 student_server.proto
+.cache/
+store_server/

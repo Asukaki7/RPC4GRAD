@@ -1,0 +1,117 @@
+@startuml
+title TCP Module Class Diagram
+
+' 基础类
+abstract class NetAddr {
+    + {abstract} getSockAddr(): sockaddr*
+    + {abstract} getSockLen(): socklen_t
+    + {abstract} getFamily(): int
+    + {abstract} toString(): string
+    + {abstract} checkValid(): bool
+}
+
+class IPNetAddr {
+    - m_ip: string
+    - m_port: uint16_t
+    - m_addr: sockaddr_in
+    + getSockAddr(): sockaddr*
+    + getSockLen(): socklen_t
+    + getFamily(): int
+    + toString(): string
+    + checkValid(): bool
+    + {static} CheckValid(addr: string): bool
+}
+
+class TcpBuffer {
+    - m_read_index: int
+    - m_write_index: int
+    - m_size: int
+    - m_buffer: vector<char>
+    + readAble(): int
+    + writeAble(): int
+    + writeToBuffer(buf: char*, size: int)
+    + readFromBuffer(read_buf: vector<char>&, size: int)
+    + resizeBuffer(new_size: int)
+    + adjustBuffer()
+}
+
+' 连接相关类
+class TcpAcceptor {
+    - m_local_addr: NetAddr::s_ptr
+    - m_family: int
+    - m_listenfd: int
+    + accept(): pair<int, NetAddr::s_ptr>
+    + getListenFd(): int
+}
+
+class TcpConnection {
+    - m_local_addr: NetAddr::s_ptr
+    - m_remote_addr: NetAddr::s_ptr
+    - m_in_buffer: TcpBuffer::s_ptr
+    - m_out_buffer: TcpBuffer::s_ptr
+    - m_event_loop: EventLoop*
+    - m_fd_event: FdEvent*
+    - m_fd: int
+    - m_state: TcpState
+    - m_coder: AbstractCoder*
+    - m_connection_type: TcpConnectionType
+    + onRead()
+    + onWrite()
+    + listenRead()
+    + listenWrite()
+    + clear()
+    + shutdown()
+    + reply(messages: vector<AbstractProtocol::s_ptr>&)
+}
+
+' 服务器和客户端类
+class TcpServer {
+    - m_acceptor: TcpAcceptor::s_ptr
+    - m_local_addr: NetAddr::s_ptr
+    - m_main_event_loop: EventLoop*
+    - m_io_thread_group: IOthreadGroup*
+    - m_listen_fd_event: FdEvent*
+    - m_client: set<TcpConnection::s_ptr>
+    + start()
+    - onAccept()
+    - clearClientTimer()
+}
+
+class TcpClient {
+    - m_remote_addr: NetAddr::s_ptr
+    - m_local_addr: NetAddr::s_ptr
+    - m_event_loop: EventLoop*
+    - m_fd: int
+    - m_fd_event: FdEvent*
+    - m_connection: TcpConnection::s_ptr
+    + connect(done: function<void()>)
+    + writeMessage(message: AbstractProtocol::s_ptr, done: function<void(AbstractProtocol::s_ptr)>)
+    + readMessage(msg_id: string, done: function<void(AbstractProtocol::s_ptr)>)
+}
+
+' 枚举类型
+enum TcpState {
+    NotConnecetd
+    Connected
+    HalfClosing
+    Closed
+}
+
+enum TcpConnectionType {
+    TcpConnectionByServer
+    TcpConnectionByClient
+}
+
+' 关系
+NetAddr <|-- IPNetAddr
+TcpServer o-- TcpAcceptor
+TcpServer o-- TcpConnection
+TcpClient o-- TcpConnection
+TcpConnection o-- TcpBuffer
+TcpConnection o-- NetAddr
+TcpConnection o-- FdEvent
+TcpServer o-- EventLoop
+TcpClient o-- EventLoop
+TcpConnection o-- EventLoop
+
+@enduml

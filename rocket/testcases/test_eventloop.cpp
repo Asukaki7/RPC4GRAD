@@ -13,9 +13,9 @@
 
 int main() {
 
-	rocket::Config::setGlobalConfig("../conf/rocket.xml");
+	rocket::Config::setGlobalConfig(nullptr);
 
-	rocket::Logger::InitGlobalLogger();
+	rocket::Logger::InitGlobalLogger(0);
 
 	rocket::EventLoop* eventLoop = new rocket::EventLoop();
 
@@ -29,7 +29,7 @@ int main() {
 	sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));
 
-	addr.sin_port = htons(12345);
+	addr.sin_port = htons(12346);
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	inet_aton("127.0.0.1", &addr.sin_addr);

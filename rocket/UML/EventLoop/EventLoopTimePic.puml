@@ -1,0 +1,74 @@
+@startuml EventLoopTimePic.puml
+title Simplified EventLoop Workflow
+
+participant "Client/OtherThread" as Client
+participant "event_loop:EventLoop" as Loop
+participant "epoll_system" as EpollOS
+participant "wakeup_fd_event:WakeupFdEvent" as WakeupFdEv
+participant "timer_obj:Timer" as TimerObj
+participant "io_event:FdEvent" as FdEv
+
+== 1. Initialization & Loop Start ==
+Client -> Loop !! : new EventLoop()
+Loop -> EpollOS : epoll_create()
+Loop -> WakeupFdEv : new WakeupFdEvent()
+Loop -> Loop : addEpollEvent(wakeup_fd_event)
+    note right: WakeupFdEvent's fd added to epoll
+Loop -> TimerObj : new Timer()
+Loop -> Loop : addEpollEvent(timer_obj)
+    note right: Timer's fd added to epoll
+Client -> Loop ++ : loop()
+
+== 2. Main Loop Cycle ==
+loop while not stopped
+    Loop -> Loop : Execute pending tasks (from addTask)
+    Loop -> EpollOS ++ : epoll_wait(...)
+    EpollOS --> Loop -- : ready_events
+
+    alt I/O event for FdEv
+        Loop -> Loop : addTask(io_event.handler)
+            note right: Schedules I/O handler
+    else Event on wakeup_fd_event
+        Loop -> WakeupFdEv ++ : handler() (reads wakeup_fd)
+        deactivate WakeupFdEv
+    else Event on timer_obj's fd
+        Loop -> Loop : addTask(timer_obj.handler)
+            note right: Schedules Timer's main handler
+            Loop -> TimerObj ++ #LightBlue : (Later, in task execution)\ntimer_obj.handler()
+            TimerObj -> TimerObj : Process expired timers,\ncall user callbacks
+            deactivate TimerObj
+    end
+end
+deactivate Loop
+
+== 3. Adding I/O Event (from Other Thread) ==
+Client -> Loop ++ : addEpollEvent(io_event)
+Loop -> Loop : addTask([add io_event to epoll_system], true)
+    note right: Task to add to epoll is queued.\n'true' means wakeup.
+Loop -> WakeupFdEv ++ : wakeup()
+WakeupFdEv -> EpollOS : write(wakeup_fd, 1)
+deactivate WakeupFdEv
+Loop -->> Client
+deactivate Loop
+note right of Loop : epoll_wait unblocks,\nwakeup_fd_event handler runs,\nthen task to add io_event runs.
+
+== 4. Adding a Timer Task ==
+Client -> Loop ++ : addTimerEvent(user_timer_task)
+Loop -> TimerObj ++ : addTimerEvent(user_timer_task)
+    note right: TimerObj sets its internal timerfd.\nWhen it expires, epoll_wait gets an event.
+TimerObj -->> Loop
+deactivate TimerObj
+Loop -->> Client
+deactivate Loop
+
+== 5. Stopping the Loop ==
+Client -> Loop ++ : stop()
+Loop -> Loop : m_stop_flag = true
+Loop -> WakeupFdEv ++ : wakeup()
+WakeupFdEv -> EpollOS : write(wakeup_fd, 1)
+deactivate WakeupFdEv
+Loop -->> Client
+deactivate Loop
+note right of Loop : Loop terminates after current iteration.
+
+@enduml

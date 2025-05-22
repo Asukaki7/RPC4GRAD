@@ -96,7 +96,7 @@ void TcpConnection::onRead() {
 	}
 
 	if (is_close) {
-		// TODO 处理关闭链接
+		
 		INFOLOG("remote close, remote addr [%s], clientfd[%d]",
 		        m_remote_addr->toString().c_str(), m_fd);
 		clear();
@@ -107,7 +107,7 @@ void TcpConnection::onRead() {
 		ERRORLOG("not read all date");
 	}
 
-	// 简单的echo，后边补充RPC协议解析！
+	
 	execute();
 }
 

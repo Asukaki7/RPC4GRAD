@@ -1,0 +1,99 @@
+@startuml RpcModule
+
+
+
+  class RpcDispatcher {
+    - m_service_map: std::map<std::string, service_sptr>
+    ---
+    + {static} getRpcDispatcher(): RpcDispatcher*
+    + dispatch(request: AbstractProtocol::s_ptr, response: AbstractProtocol::s_ptr, connection: TcpConnection*)
+    + registerService(service: service_sptr)
+  }
+
+  class RpcChannel {
+    - m_remote_addr: NetAddr::s_ptr
+    - m_local_addr: NetAddr::s_ptr
+    - m_controller: controller_s_ptr
+    - m_request: message_s_ptr
+    - m_response: message_s_ptr
+    - m_closure: closure_s_ptr
+    - m_client: TcpClient::s_ptr
+    ---
+    + RpcChannel(remote_addr: NetAddr::s_ptr)
+    + Init(controller: controller_s_ptr, request: message_s_ptr, response: message_s_ptr, closure: closure_s_ptr)
+    + CallMethod(method: MethodDescriptor*, controller: RpcController*, request: Message*, response: Message*, done: Closure*)
+    + {static} FindAddr(str: std::string): NetAddr::s_ptr
+  }
+
+  class RpcController {
+    - m_error_code: int32_t
+    - m_error_info: std::string
+    - m_msg_id: std::string
+    - m_is_failed: bool
+    - m_is_canceled: bool
+    - m_is_finished: bool
+    - m_local_addr: NetAddr::s_ptr
+    - m_remote_addr: NetAddr::s_ptr
+    - m_timeout: int32_t
+    ---
+    + SetFailed(reason: std::string)
+    + Failed(): bool
+    + ErrorText(): std::string
+    + SetError(error_code: int32_t, error_info: std::string)
+    + SetTimeout(timeout: int)
+  }
+
+  class RpcInterface {
+    # m_req: const Message*
+    # m_rsp: Message*
+    # m_done: RpcClosure*
+    # m_controller: RpcController*
+    ---
+    + RpcInterface(req: const Message*, rsp: Message*, done: RpcClosure*, controller: RpcController*)
+    + reply()
+    + destroy()
+    + {abstract} run()
+    + {abstract} set_error(err_code: int, err_info: std::string)
+  }
+
+  class RpcClosure {
+    - m_interface: interface_sptr
+    - m_cb: std::function<void()>
+    ---
+    + RpcClosure(interface: interface_sptr, cb: std::function<void()>)
+    + Run()
+  }
+
+  class TcpConnection {
+    - m_local_addr: NetAddr::s_ptr
+    - m_remote_addr: NetAddr::s_ptr
+    - m_event_loop: EventLoop*
+    - m_fd: int
+    - m_state: TcpState
+    ---
+    + execute()
+  }
+
+  class TcpClient {
+    - m_event_loop: EventLoop*
+    - m_fd: int
+    - m_state: TcpState
+    ---
+    + connect(done: std::function<void()>)
+    + writeMessage(msg: AbstractProtocol::s_ptr, done: std::function<void(AbstractProtocol::s_ptr)>)
+    + readMessage(msg_id: std::string, done: std::function<void(AbstractProtocol::s_ptr)>)
+  }
+
+  RpcDispatcher  o--  TcpConnection 
+  RpcChannel  *--  TcpClient 
+  RpcChannel  *--  RpcController 
+  RpcChannel  *--  RpcClosure 
+  RpcInterface  *--  RpcController 
+  RpcInterface  *--  RpcClosure 
+  RpcClosure  o--  RpcInterface 
+  TcpConnection  *--  NetAddr 
+  TcpClient  *--  NetAddr 
+
+
+
+@enduml 

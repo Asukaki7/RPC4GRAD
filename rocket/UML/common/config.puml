@@ -1,0 +1,64 @@
+@startuml "Rocket Config Module"
+
+class Config {
+  - m_config_values: map<string, string>
+  - m_xml_document: TiXmlDocument*
+  
+  - m_log_level: string
+  - m_log_file_name: string
+  - m_log_file_path: string
+  - m_log_max_file_size: int
+  - m_log_flush_interval: int
+  
+  - m_port: int
+  - m_io_threads: int
+  
+  - m_rpc_stubs: map<string, Rpcstub>
+  
+  + Config()
+  + Config(const char* xmlfile)
+  + ~Config()
+  + {static} GetGlobalConfig(): Config*
+  + {static} setGlobalConfig(const char* xmlfile): void
+}
+
+class Rpcstub {
+  + name: string
+  + addr: NetAddr::s_ptr
+  + timeout: int
+}
+
+abstract class NetAddr {
+  + {abstract} toString(): string
+  + {static} s_ptr: shared_ptr<NetAddr>
+}
+
+class IPNetAddr {
+  - m_ip: string
+  - m_port: uint16_t
+  + IPNetAddr(string ip, uint16_t port)
+  + toString(): string
+  + {static} CheckValid(string addr): bool
+}
+
+' 关系定义
+Config o-- "0..*" Rpcstub : contains >
+Rpcstub o-- "1" NetAddr : has >
+NetAddr <|-- IPNetAddr : inherits
+
+note bottom of Config
+  全局单例模式，管理所有配置项
+  从XML文件加载配置信息
+end note
+
+note right of Rpcstub
+  存储RPC服务的连接信息
+  包括服务名、地址和超时时间
+end note
+
+note right of IPNetAddr
+  实现IP地址和端口的封装
+  支持地址有效性检查
+end note
+
+@enduml

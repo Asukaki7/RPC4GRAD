@@ -14,8 +14,9 @@
 #include <string>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <gtest/gtest.h>
 
-void test_connnect() {
+void test_connect() {
 	// 调用connect 连接 server
 	// write 一个字符串
 	// 等待read返回结果
@@ -76,8 +77,8 @@ void test_tcp_client() {
 
 int main() {
 
-	rocket::Config::setGlobalConfig("../conf/rocket.xml");
+	rocket::Config::setGlobalConfig(nullptr);
 
-	rocket::Logger::InitGlobalLogger();
+	rocket::Logger::InitGlobalLogger(0);
 	test_tcp_client();
 }

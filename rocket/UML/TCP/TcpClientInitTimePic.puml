@@ -1,0 +1,57 @@
+@startuml
+title 简化的客户端连接初始化（非阻塞）
+
+participant "ApplicationLayer" as App
+participant "tcpClient: TcpClient" as TCPClient
+participant "remoteAddr: NetAddr" as RemoteNetAddr
+participant "clientEventLoop: EventLoop" as ClientEL
+participant "clientFdEvent: FdEvent" as ClientFDE
+participant "OS_SocketAPI" as OS_Socket
+
+skinparam sequenceMessageAlign center
+
+App -> TCPClient : new TcpClient(server_addr_info)
+activate TCPClient
+    TCPClient -> RemoteNetAddr : new NetAddr(server_addr_info)
+    TCPClient -> OS_Socket : socket(...)
+    OS_Socket --> TCPClient : client_fd
+    TCPClient -> ClientFDE : new FdEvent(client_fd)
+    note right: FdEvent被设置为（或将要设置为）非阻塞模式
+deactivate TCPClient
+
+App -> TCPClient : connect(on_done_callback)
+activate TCPClient
+    TCPClient -> OS_Socket : connect(client_fd, remoteAddr, ...)
+    OS_Socket -->> TCPClient : result (例如：EINPROGRESS)
+    
+    alt result indicates EINPROGRESS
+        TCPClient -> ClientFDE : listen(OUT_EVENT, handle_connect_attempt)
+        TCPClient -> ClientEL : addEpollEvent(clientFdEvent)
+        note right: 等待EventLoop通过可写性信号通知连接完成
+    else result indicates immediate success or error
+        TCPClient -> App : on_done_callback(status)
+    end
+deactivate TCPClient
+
+== 之后，如果连接状态为EINPROGRESS ==
+ClientEL -> ClientFDE : OUT_EVENT (Socket可写，连接尝试完成)
+activate ClientFDE
+ClientFDE -> TCPClient : handle_connect_attempt()
+deactivate ClientFDE
+
+activate TCPClient
+    TCPClient -> OS_Socket : check_socket_error(client_fd) ' 使用getsockopt SO_ERROR
+    OS_Socket --> TCPClient : connection_status
+    
+    alt connection_status == SUCCESS
+        TCPClient -> TCPClient : 将连接状态设置为已连接
+        TCPClient -> App : on_done_callback(SUCCESS)
+    else connection_status == FAILURE
+        TCPClient -> TCPClient : 处理连接失败
+        TCPClient -> App : on_done_callback(FAILURE)
+    end
+    
+    TCPClient -> ClientEL : 修改/移除FdEvent监听 ' 准备数据I/O或清理
+deactivate TCPClient
+
+@enduml

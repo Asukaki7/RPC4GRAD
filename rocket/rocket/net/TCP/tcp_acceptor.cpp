@@ -19,6 +19,7 @@ TcpAcceptor::TcpAcceptor(NetAddr::s_ptr local_addr)
 
 	m_family = local_addr->getFamily();
 
+	//sock stream 提供可靠的、面向连接的网络通信服务
 	m_listenfd = socket(m_family, SOCK_STREAM, 0);
 	if (m_listenfd < 0) {
 		ERRORLOG("create socket error");

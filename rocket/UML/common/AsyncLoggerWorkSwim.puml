@@ -1,0 +1,76 @@
+@startuml Async Logger Flow
+
+' 定义样式
+skinparam backgroundColor white
+skinparam defaultFontSize 14
+skinparam ArrowColor black
+skinparam ArrowThickness 1
+skinparam roundcorner 10
+skinparam activityBackgroundColor lightgrey
+skinparam noteBackgroundColor lightyellow
+
+' 定义泳道
+|主线程|
+|EventLoop线程|
+|Logger组件|
+|AsyncLogger队列|
+|AsyncLogger线程|
+|文件系统|
+
+' 开始流程
+|主线程|
+start
+:调用DEBUGLOG/INFOLOG/ERRORLOG;
+:创建LogEvent并格式化日志;
+
+|Logger组件|
+:日志消息进入Logger::m_buffers缓冲区;
+
+
+|主线程|
+:立即返回，继续执行业务逻辑;
+
+
+|EventLoop线程|
+:TimerEvent定时触发;
+note right: 每隔一段时间触发一次\n（如100ms）
+
+|Logger组件|
+:调用Logger::syncLoop();
+:获取互斥锁;
+:将当前缓冲区数据转移到临时变量;
+:释放互斥锁;
+
+
+|AsyncLogger队列|
+:将日志批次推入AsyncLogger的队列;
+:发送信号唤醒AsyncLogger线程;
+
+
+|AsyncLogger线程|
+:等待新日志到达;
+:被唤醒;
+:从队列中取出日志批次;
+
+
+|文件系统|
+:打开日志文件;
+:批量写入日志数据;
+:检查文件大小;
+
+if (文件大小超过限制?) then (是)
+  :关闭当前文件;
+  :创建新日志文件;
+else (否)
+  :继续使用当前文件;
+endif
+
+|AsyncLogger线程|
+:处理完成后继续等待新日志;
+
+|主线程|
+:在程序的任何地方\n可随时写入新日志;
+
+stop
+
+@enduml

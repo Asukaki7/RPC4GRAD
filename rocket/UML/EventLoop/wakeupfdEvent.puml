@@ -1,0 +1,30 @@
+@startuml
+title 主从Reactor wakeup核心逻辑时序图
+
+participant mainReactor
+participant subReactor
+
+activate subReactor
+subReactor -> subReactor: epoll_wait(timeout, [wakeupfd, ...])
+note left of subReactor: subReactor 可能在此沉睡，\n监听 wakeupfd
+
+activate mainReactor
+mainReactor -> mainReactor: 获取到新的 clientfd
+note right of mainReactor: 准备将 clientfd 分配给 subReactor
+
+mainReactor -> subReactor: (逻辑上) 提交 clientfd \n (例如放入任务队列)
+mainReactor -> subReactor: write(wakeupfd, "1")
+note left of subReactor #LightSkyBlue: wakeupfd 变为可读，\nsubReactor 将被唤醒
+
+deactivate mainReactor
+
+subReactor -> subReactor: epoll_wait 返回 (因 wakeupfd 可读)
+subReactor -> subReactor: read(wakeupfd) // 清除唤醒事件
+subReactor -> subReactor: 处理任务队列 (获取 clientfd)
+subReactor -> subReactor: epoll_ctl(ADD, clientfd, EPOLLIN)
+note left of subReactor: 新的 clientfd 被 subReactor 接管并监听
+
+subReactor -> subReactor: 继续 epoll_wait(...)
+deactivate subReactor
+
+@enduml

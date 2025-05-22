@@ -1,0 +1,73 @@
+@startuml RPC调用时序图
+
+participant "Client Application" as App
+participant "RpcChannel" as Channel
+participant "RpcController" as Controller
+participant "TcpClient" as TcpClient
+participant "RpcClosure" as Closure
+participant "RPC Server" as Server
+
+== 组件创建与初始化 ==
+App -> App: 创建Request对象
+App -> App: 创建Response对象
+App -> Controller: 创建RpcController
+App -> Channel: 创建RpcChannel(remote_addr)
+App -> Closure: 创建RpcClosure(callback)
+
+== RpcChannel初始化 ==
+App -> Channel: Init(controller, request, response, closure)
+activate Channel
+Channel -> TcpClient: 创建/复用TCP连接
+deactivate Channel
+
+== 远程方法调用 ==
+App -> Channel: CallMethod(method, controller, request, response, done)
+activate Channel
+
+Channel -> Channel: 获取方法完整名称
+Channel -> Channel: 构建TinyPBProtocol消息
+note right
+  1. 设置消息ID
+  2. 设置方法名(ServiceName.MethodName)
+  3. 序列化Request消息体
+end note
+
+Channel -> TcpClient: writeMessage(request_protocol)
+activate TcpClient
+
+TcpClient -> Server: 发送请求
+activate Server
+
+TcpClient -> TcpClient: readMessage(msg_id)
+note right: 注册响应回调
+
+== 响应处理 ==
+Server --> TcpClient: 返回响应
+deactivate Server
+
+TcpClient -> Channel: 回调处理响应
+activate Channel
+
+Channel -> Channel: 解码TinyPBProtocol响应
+Channel -> Channel: 检查错误码
+
+alt 调用成功
+    Channel -> Channel: 反序列化响应数据到Response对象
+else 调用失败
+    Channel -> Controller: SetError(error_code, error_info)
+end
+
+Channel -> Closure: Run()
+activate Closure
+Closure -> App: 执行回调函数
+note right
+  1. 处理Response结果
+  2. 检查Controller状态
+end note
+deactivate Closure
+
+deactivate Channel
+deactivate TcpClient
+deactivate Channel
+
+@enduml

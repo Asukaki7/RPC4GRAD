@@ -108,7 +108,7 @@ void test_rpc_channel() {
 					// xx
 				}
 		        INFOLOG("now exit eventLoop");
-		        // channel->getClient()->stop();
+		        channel->getTcpClient()->stop();
 		        channel.reset();
 	        });
 	

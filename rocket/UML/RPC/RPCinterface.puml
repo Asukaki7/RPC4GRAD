@@ -1,0 +1,74 @@
+@startuml RpcInterface_Class_Diagram
+
+' 修正后的skinparam设置
+skinparam classAttributeIconSize 1  ' 必须设置为1才能显示访问修饰符图标
+skinparam linetype ortho
+skinparam class {
+    BackgroundColor white
+    ArrowColor black
+    BorderColor black
+    FontSize 13
+    AttributeFontSize 13
+    MethodFontSize 13
+}
+skinparam stereotypeCBackgroundColor white
+skinparam stereotypeCBorderColor black
+
+package "rocket" {
+    abstract class RpcInterface {
+        {field} # m_req: const google::protobuf::Message*
+        {field} # m_rsp: google::protobuf::Message*
+        {field} # m_done: RpcClosure*
+        {field} # m_controller: RpcController*
+        --
+        {method} + RpcInterface(req, rsp, done, controller)
+        {method} + virtual ~RpcInterface()
+        {method} + virtual void reply()
+        {method} + void destroy()
+        {method} + std::shared_ptr<RpcClosure> newRpcClosure(cb)
+        {abstract} {method} + virtual void run()
+        {abstract} {method} + virtual void set_error(err_code, err_info)
+    }
+}
+
+package "Project specific" {
+    abstract class Interface {
+        {method} + Interface(req, rsp, done, controller)
+        {abstract} {method} + virtual ~Interface()
+    }
+    
+    class ConcreteInterface {
+        {field} - m_request: const RequestType*
+        {field} - m_response: ResponseType*
+        --
+        {method} + ConcreteInterface(request, response, done, controller)
+        {method} + ~ConcreteInterface()
+        {method} + void run() override
+        {method} + void set_error(code, err_info) override
+    }
+}
+
+RpcInterface <|-- Interface
+Interface <|-- ConcreteInterface
+
+note right of RpcInterface
+  基类功能:
+  1. 管理请求和响应消息对象
+  2. 提供回复客户端的接口(reply)
+  3. 负责资源清理(destroy)
+  4. 定义业务逻辑抽象接口(run)
+  5. 定义错误处理抽象接口(set_error)
+end note
+
+note right of Interface
+  项目特定的中间抽象层
+end note
+
+note right of ConcreteInterface
+  具体RPC接口实现:
+  1. 实现具体业务逻辑(run方法)
+  2. 实现具体错误处理(set_error方法)
+  3. 处理特定的请求和响应类型
+end note
+
+@enduml

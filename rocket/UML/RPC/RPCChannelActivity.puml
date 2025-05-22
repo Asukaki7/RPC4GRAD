@@ -1,0 +1,94 @@
+@startuml RPC_Channel_Activity_Diagram
+
+|Client Application|
+start
+:Initialize RpcChannel with controller, request, response, closure;
+:Call RpcChannel::CallMethod;
+
+|Validation|
+if (Controller/Request/Response valid?) then (no)
+  :Set Error in Controller;
+  :Execute callback;
+  stop
+else (yes)
+endif
+
+if (Remote Address valid?) then (no)
+  :Set Error in Controller;
+  :Execute callback;
+  stop
+else (yes)
+endif
+
+|TCP Client Creation|
+:Create TcpClient;
+
+if (Controller has MsgId?) then (no)
+  :Generate or get MsgId from RunTime;
+else (yes)
+  :Use existing MsgId;
+endif
+
+:Set method name in protocol;
+
+|Channel Validation|
+if (Channel initialized?) then (no)
+  :Set Error in Controller;
+  :Execute callback;
+  stop
+else (yes)
+endif
+
+|Request Serialization|
+:Serialize request;
+
+if (Serialization successful?) then (no)
+  :Set Error in Controller;
+  :Execute callback;
+  stop
+else (yes)
+endif
+
+|Timeout and Connection|
+:Create timeout timer event;
+:Connect to server;
+
+if (Connection successful?) then (no)
+  :Set Error in Controller;
+  :Execute callback;
+  stop
+else (yes)
+endif
+
+|Send Request and Receive Response|
+:Send request to server;
+:Wait for response;
+
+|Deserialization and Error Handling|
+if (Deserialization successful?) then (no)
+  :Set Error in Controller;
+  :Execute callback;
+  stop
+else (yes)
+endif
+
+if (Response has error?) then (yes)
+  :Set Error in Controller;
+  :Execute callback;
+  stop
+else (no)
+endif
+
+|Client Callback Execution|
+:Execute client callback;
+
+if (Controller finished?) then (yes)
+  :Return;
+else (no)
+  :Run closure;
+  :Set controller finished;
+endif
+
+stop
+
+@enduml

@@ -1,0 +1,36 @@
+@startuml RPC Channel Basic Flow
+
+participant "Client Application" as Client
+participant "RpcChannel" as Channel
+participant "TcpClient" as TcpClient
+participant "RPC Server" as Server
+
+Client -> Channel: CallMethod(method, controller, request, response, done)
+activate Channel
+
+Channel -> Channel: Set msg_id and method name
+Channel -> Channel: Serialize request
+
+Channel -> TcpClient: Create timeout timer event
+Channel -> TcpClient: connect()
+activate TcpClient
+
+TcpClient -> Server: writeMessage(request)
+activate Server
+
+TcpClient -> TcpClient: readMessage(msg_id)
+
+Server --> TcpClient: response
+deactivate Server
+
+TcpClient --> Channel: Return response
+deactivate TcpClient
+
+Channel -> Channel: Deserialize response
+Channel -> Channel: callBack()
+note right: Execute client's callback
+Channel -> Client: closure->Run()
+
+deactivate Channel
+
+@enduml

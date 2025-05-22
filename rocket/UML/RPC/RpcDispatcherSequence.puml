@@ -1,0 +1,54 @@
+@startuml RPC_Dispatcher_Sequence
+
+participant "TcpConnection" as Conn
+participant "RpcDispatcher" as Dispatcher
+participant "Service Map" as ServiceMap
+participant "Service Implementation" as Service
+participant "RpcController" as Controller
+participant "RpcClosure" as Closure
+
+Conn -> Dispatcher: dispatch(request, response, connection)
+activate Dispatcher
+
+== 核心流程 ==
+
+Dispatcher -> Dispatcher: parseServiceFullName()
+note right: 解析服务名和方法名
+
+Dispatcher -> ServiceMap: 查找服务
+alt 服务不存在
+    Dispatcher --> Conn: 返回错误
+else 服务存在
+    Dispatcher -> Service: 查找方法
+    
+    alt 方法不存在
+        Dispatcher --> Conn: 返回错误
+    else 方法存在
+        Dispatcher -> Service: 创建请求和响应对象
+        Dispatcher -> Service: 反序列化请求数据
+        
+        alt 反序列化失败
+            Dispatcher --> Conn: 返回错误
+        else 反序列化成功
+            Dispatcher -> Controller: 创建Controller
+            Dispatcher -> Closure: 创建Closure
+            
+            Dispatcher -> Service: CallMethod()
+            activate Service
+            note right: 执行具体服务实现
+            
+            Service -> Closure: Run()
+            activate Closure
+            Closure -> Conn: 发送响应
+            deactivate Closure
+            
+            Service --> Dispatcher: 返回
+            deactivate Service
+        end
+    end
+end
+
+Dispatcher --> Conn: 返回
+deactivate Dispatcher
+
+@enduml

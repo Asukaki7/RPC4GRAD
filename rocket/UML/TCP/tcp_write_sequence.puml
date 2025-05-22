@@ -1,0 +1,53 @@
+@startuml TCP数据写入序列
+
+participant "应用程序" as App
+participant "TCP连接" as TcpConn
+participant "TCP缓冲区" as OutBuffer
+participant "Socket发送缓冲区" as SocketBuffer
+participant "事件循环" as EventLoop
+participant "网络" as Network
+actor "接收方" as Receiver
+
+== 数据发送 ==
+App -> TcpConn: 调用send/write接口
+activate TcpConn
+
+TcpConn -> SocketBuffer: 尝试直接写入socket
+alt 可以完全发送
+    SocketBuffer -> Network: 数据立即发送
+    Network -> Receiver: 数据传输到接收方
+else 无法完全发送（缓冲区满或部分发送）
+    SocketBuffer --> TcpConn: 返回已发送的字节数
+    TcpConn -> OutBuffer: 将未发送的数据存储在输出缓冲区
+    
+    TcpConn -> TcpConn: 注册socket"可写"事件(EPOLLOUT)
+    TcpConn -> EventLoop: 添加/更新epoll事件
+    deactivate TcpConn
+    
+    == 后续数据发送（当socket可写时）==
+    EventLoop -> EventLoop: 检测EPOLLOUT事件
+    EventLoop -> TcpConn: 调用onWrite()回调
+    activate TcpConn
+    
+    loop 直到输出缓冲区为空或无法继续写入
+        TcpConn -> OutBuffer: 获取待发送数据
+        TcpConn -> SocketBuffer: write()写入socket
+        SocketBuffer --> TcpConn: 返回已发送的字节数
+        
+        alt 所有数据已发送
+            TcpConn -> OutBuffer: 更新缓冲区状态（移除已发送数据）
+            TcpConn -> TcpConn: 取消"可写"事件(EPOLLOUT)监控
+            TcpConn -> EventLoop: 更新epoll事件
+        else 部分发送(EAGAIN)
+            TcpConn -> OutBuffer: 更新缓冲区状态（移除已发送部分）
+            note right: 保持EPOLLOUT监控，等待下一个可写事件
+        end
+        
+        SocketBuffer -> Network: 数据发送
+        Network -> Receiver: 数据传输到接收方
+    end
+    
+    deactivate TcpConn
+end
+
+@enduml 

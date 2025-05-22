@@ -1,0 +1,60 @@
+@startuml RPC调用流程
+
+participant "Client" as client
+participant "Main Reactor" as mainReactor
+participant "Sub Reactor" as subReactor
+participant "RpcDispatcher" as dispatcher
+participant "RpcInterface\n(Service Instance)" as service
+participant "Business Thread Pool" as threadPool
+
+== 服务注册阶段 ==
+note over service, dispatcher
+    应用程序启动时
+end note
+service -> dispatcher: registerService(serviceName, serviceInstance)
+activate dispatcher
+dispatcher -> dispatcher: 存储到 m_service_map
+deactivate dispatcher
+
+== 连接建立阶段 ==
+client -> mainReactor: 发起TCP连接
+activate mainReactor
+mainReactor -> subReactor: 分发新连接
+deactivate mainReactor
+activate subReactor
+subReactor -> subReactor: 将连接加入事件循环
+deactivate subReactor
+
+== 请求处理阶段 ==
+client -> subReactor: 发送RPC请求
+activate subReactor
+subReactor -> subReactor: 读取网络数据
+subReactor -> subReactor: 解码TinyPBProtocol
+subReactor -> threadPool: 提交任务到线程池
+deactivate subReactor
+
+== 业务处理阶段 ==
+activate threadPool
+threadPool -> dispatcher: dispatch(request)
+activate dispatcher
+dispatcher -> dispatcher: 解析方法全名
+dispatcher -> dispatcher: 查找服务实例
+dispatcher -> dispatcher: 查找方法描述符
+dispatcher -> service: 调用具体服务方法
+activate service
+service -> service: 执行业务逻辑
+service --> dispatcher: 返回处理结果
+deactivate service
+dispatcher --> threadPool: 返回响应
+deactivate dispatcher
+threadPool -> threadPool: 序列化响应
+threadPool -> subReactor: 提交响应到I/O线程
+deactivate threadPool
+
+== 响应发送阶段 ==
+activate subReactor
+subReactor -> subReactor: 编码响应消息
+subReactor -> client: 发送响应
+deactivate subReactor
+
+@enduml

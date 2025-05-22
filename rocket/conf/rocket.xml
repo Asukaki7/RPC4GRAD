@@ -15,10 +15,12 @@
     </server>
 
     <stub>
+        <!-- 默认配置 -->
+        <!-- 调用下游RPC 服务时，需要将其 ip port 配置在此处 -->
         <rpc_server>
-        <name></name>
-        <ip></ip>
-        <port></port>
+            <name>default</name>
+            <ip>127.0.0.1</ip>
+            <port>12345</port>
         </rpc_server>
     </stub>
 </root>

@@ -82,7 +82,7 @@ void TcpClient::connect(std::function<void()> done) {
 
 				    // 连接完后需要去掉可写事件的监听，不然会一直触发
 				    m_event_loop->deleteEpollEvent(m_fd_event);
-					DEBUGLOG("now begin to done");
+					DEBUGLOG("now begin to callback");
 				    // 如果连接成功才会执行回调函数
 				    if (done) {
 					    done();

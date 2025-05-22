@@ -1,0 +1,60 @@
+@startuml
+title 服务器初始化和监听设置
+
+participant "ApplicationLayer" as App
+participant "tcpServer: TcpServer" as TCPServer
+participant "localAddr: NetAddr" as NetAddr
+participant "acceptor: TcpAcceptor" as TCPAcceptor
+participant "mainEventLoop: EventLoop" as MainEL
+participant "listeningFd: FdEvent" as ListeningFDE
+participant "OS_SocketAPI" as OS_Socket
+
+skinparam sequenceMessageAlign center
+
+App -> TCPServer : new TcpServer(config_addr_info)
+activate TCPServer
+
+TCPServer -> NetAddr : new NetAddr(config_addr_info)
+activate NetAddr
+NetAddr --> TCPServer : localAddr
+deactivate NetAddr
+TCPServer -> TCPServer : m_local_addr = localAddr
+
+TCPServer -> TCPAcceptor : new TcpAcceptor(localAddr)
+activate TCPAcceptor
+    TCPAcceptor -> OS_Socket : socket(AF_INET, SOCK_STREAM, 0)
+    activate OS_Socket
+    OS_Socket --> TCPAcceptor : listen_fd_raw
+    deactivate OS_Socket
+
+    TCPAcceptor -> OS_Socket : bind(listen_fd_raw, localAddr.getSockAddr(), ...)
+    activate OS_Socket
+    OS_Socket --> TCPAcceptor : bind_success
+    deactivate OS_Socket
+
+    TCPAcceptor -> OS_Socket : listen(listen_fd_raw, backlog)
+    activate OS_Socket
+    OS_Socket --> TCPAcceptor : listen_success
+    deactivate OS_Socket
+    TCPAcceptor --> TCPServer : acceptor
+deactivate TCPAcceptor
+TCPServer -> TCPServer : m_acceptor = acceptor
+
+TCPServer -> ListeningFDE : new FdEvent(acceptor.getListenFd())
+activate ListeningFDE
+ListeningFDE --> TCPServer : listeningFdEvent
+deactivate ListeningFDE
+TCPServer -> TCPServer : m_listen_fd_event = listeningFdEvent
+
+note right of TCPServer : listeningFdEvent被配置为在IN_EVENT时\n调用TcpServer.onAccept()
+
+TCPServer -> MainEL : addEpollEvent(listeningFdEvent)
+activate MainEL
+    MainEL -> MainEL : 注册listeningFdEvent用于读事件(EPOLLIN)
+    note right of MainEL : EventLoop现在监控listeningFd以获取新连接
+deactivate MainEL
+
+TCPServer --> App : server_instance (准备开始循环)
+deactivate TCPServer
+
+@enduml

@@ -103,7 +103,7 @@ Config::Config(const char* xmlfile) {
 		}
 	}
 
-	printf("server -- config: port: %d, io_threas: %d\n", m_port, m_io_threads);
+	printf("server -- config: port: %d, io_threads: %d\n", m_port, m_io_threads);
 
 }
 

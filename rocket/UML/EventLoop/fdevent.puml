@@ -1,0 +1,31 @@
+@startuml
+title FdEvent Creation and Event Registration
+
+participant "Application" as App
+participant "FdEvent" as FDE
+participant "EventLoop" as EL
+participant "epoll" as EPOLL
+
+== FdEvent 创建 ==
+App -> FDE : new FdEvent(fd)
+activate FDE
+    FDE -> FDE : initialize m_fd
+    FDE -> FDE : memset(&m_listen_event, 0, sizeof(m_listen_event))
+deactivate FDE
+
+== 事件注册 ==
+App -> FDE : listen(IN_EVENT, read_callback, error_callback)
+activate FDE
+    FDE -> FDE : m_listen_event.events |= EPOLLIN
+    FDE -> FDE : m_read_callback = callback
+    FDE -> FDE : m_error_callback = error_callback
+    FDE -> FDE : m_listen_event.data.ptr = this
+deactivate FDE
+
+App -> EL : addEpollEvent(FdEvent)
+activate EL
+    EL -> EPOLL : epoll_ctl(EPOLL_CTL_ADD, fd, &event)
+    EPOLL --> EL : success
+    EL -> EL : m_listen_fds.insert(fd)
+deactivate EL
+@enduml

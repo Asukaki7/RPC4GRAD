@@ -1,0 +1,60 @@
+@startuml TcpClient
+
+title TcpClient Module
+
+package "rocket::net::TCP" {
+
+  class TcpClient {
+    - m_remote_addr: NetAddr::s_ptr
+    - m_event_loop: EventLoop*
+    - m_fd: int
+    - m_fd_event: FdEvent*
+    - m_connection: TcpConnection::s_ptr
+    - m_connect_error_code: int
+    - m_connect_error_msg: std::string
+    ---
+    + TcpClient(remote_addr: NetAddr::s_ptr)
+    + ~TcpClient()
+    + connect(done: std::function<void()>)
+    + addTimerEvent(timer_event: TimerEvent::s_ptr)
+  }
+
+  class TcpConnection {
+    - m_local_addr: NetAddr::s_ptr
+    - m_remote_addr: NetAddr::s_ptr
+    - m_event_loop: EventLoop*
+    - m_fd: int
+    - m_state: TcpState
+    - m_connection_type: TcpConnectionType
+    ---
+    + TcpConnection(event_loop: EventLoop*, fd: int, ...)
+    + ~TcpConnection()
+    + setState(state: TcpState)
+  }
+
+  class NetAddr {
+    + getSockAddr(): sockaddr*
+    + getSockLen(): socklen_t
+    + toString(): std::string
+  }
+
+  class FdEvent {
+    # m_fd: int
+    # m_read_callback: std::function<void()>
+    # m_write_callback: std::function<void()>
+    + FdEvent(fd: int)
+    + listen(event_type: TriggerEvent, callback: std::function<void()>)
+  }
+
+  TcpClient "1" *-- "1" NetAddr : owns >
+  TcpClient "1" o-- "1" EventLoop : uses >
+  TcpClient "1" *-- "1" FdEvent : owns >
+  TcpClient "1" *-- "1" TcpConnection : owns >
+
+  TcpConnection "1" *-- "1" NetAddr : owns >
+  TcpConnection "1" *-- "1" NetAddr : owns >
+  TcpConnection "1" o-- "1" EventLoop : uses >
+
+}
+
+@enduml 

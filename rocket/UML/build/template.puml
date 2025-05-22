@@ -1,0 +1,49 @@
+@startuml
+skinparam backgroundColor white
+skinparam style strictuml
+
+title 脚手架代码生成流程
+
+actor 开发者
+participant "Proto文件" as Proto
+participant "rocket_generator.py" as Generator
+participant "模板文件" as Templates
+participant "生成的项目结构" as Project
+participant "编译工具链" as Compiler
+participant "运行时环境" as Runtime
+
+开发者 -> Proto : 1. 编写服务定义
+note right: 定义服务接口和消息格式
+
+开发者 -> Generator : 2. 执行生成脚本
+Generator -> Proto : 3. 解析proto文件
+Generator -> Templates : 4. 读取模板文件
+Generator -> Project : 5. 生成项目目录结构
+note right
+  创建目录:
+  - bin/
+  - conf/
+  - log/
+  - service/
+  - interface/
+  - pb/
+  等
+end note
+
+Generator -> Project : 6. 生成protobuf代码
+Generator -> Project : 7. 生成服务实现代码
+Generator -> Project : 8. 生成接口代码
+Generator -> Project : 9. 生成测试客户端
+Generator -> Project : 10. 生成构建文件
+note right: 生成makefile或CMakeLists.txt
+
+开发者 -> Compiler : 11. 编译项目
+Compiler -> Project : 12. 读取源码和构建文件
+Compiler -> Project : 13. 生成二进制文件
+note right: 生成服务可执行文件和测试工具
+
+开发者 -> Runtime : 14. 启动服务
+Runtime -> Project : 15. 加载配置文件
+Runtime -> Runtime : 16. 服务运行
+
+@enduml

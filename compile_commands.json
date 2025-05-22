@@ -1,0 +1,172 @@
+[
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/common/config.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/common/config.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/common/config.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/common/log.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/common/log.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/common/log.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/common/msg_id_util.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/common/msg_id_util.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/common/msg_id_util.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/common/run_time.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/common/run_time.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/common/run_time.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/common/util.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/common/util.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/common/util.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/eventLoop.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/eventLoop.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/eventLoop.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/fd_event.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/fd_event.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/fd_event.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/fd_event_group.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/fd_event_group.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/fd_event_group.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/io_thread.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/io_thread.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/io_thread.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/io_thread_group.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/io_thread_group.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/io_thread_group.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/timer.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/timer.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/timer.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/timer_event.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/timer_event.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/timer_event.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/wakeup_fd_event.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/wakeup_fd_event.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/wakeup_fd_event.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/TCP/net_addr.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP/net_addr.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP/net_addr.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/TCP/tcp_acceptor.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP/tcp_acceptor.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP/tcp_acceptor.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/TCP/tcp_buffer.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP/tcp_buffer.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP/tcp_buffer.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/TCP/tcp_client.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP/tcp_client.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP/tcp_client.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/TCP/tcp_connection.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP/tcp_connection.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP/tcp_connection.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/TCP/tcp_server.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP/tcp_server.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP/tcp_server.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/coder/tinyPB_coder.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/coder/tinyPB_coder.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder/tinyPB_coder.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/rpc/rpc_channel.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc/rpc_channel.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc/rpc_channel.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/rpc/rpc_controller.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc/rpc_controller.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc/rpc_controller.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/rpc/rpc_dispatcher.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc/rpc_dispatcher.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc/rpc_dispatcher.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/rocket.dir/rocket/net/rpc/rpc_interface.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc/rpc_interface.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc/rpc_interface.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/test_log.dir/testcases/test_log.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/testcases/test_log.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/testcases/test_log.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/test_eventloop.dir/testcases/test_eventloop.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/testcases/test_eventloop.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/testcases/test_eventloop.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/test_IOthread.dir/testcases/test_IOthread.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/testcases/test_IOthread.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/testcases/test_IOthread.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/test_tcp.dir/testcases/test_tcp.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/testcases/test_tcp.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/testcases/test_tcp.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/test_client.dir/testcases/test_client.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/testcases/test_client.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/testcases/test_client.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/test_rpc_client.dir/testcases/test_rpc_client.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/testcases/test_rpc_client.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/testcases/test_rpc_client.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/test_rpc_client.dir/testcases/order.pb.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/testcases/order.pb.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/testcases/order.pb.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/test_rpc_server.dir/testcases/test_rpc_server.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/testcases/test_rpc_server.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/testcases/test_rpc_server.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/test_rpc_server.dir/testcases/order.pb.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/testcases/order.pb.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/testcases/order.pb.cpp"
+},
+{
+  "directory": "/root/Codes/C++/rpc4GraD/rocket/build",
+  "command": "g++ -I/root/Codes/C++/rpc4GraD/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket -I/root/Codes/C++/rpc4GraD/rocket/rocket/common -I/root/Codes/C++/rpc4GraD/rocket/rocket/net -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/TCP -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/coder -I/root/Codes/C++/rpc4GraD/rocket/rocket/net/rpc -g -g -O0 -Wall -Wno-deprecated -Wno-unused-but-set-variable -std=gnu++17 -o CMakeFiles/test_log_gtest.dir/testcases/test_log_gtest.cpp.o -c /root/Codes/C++/rpc4GraD/rocket/testcases/test_log_gtest.cpp",
+  "file": "/root/Codes/C++/rpc4GraD/rocket/testcases/test_log_gtest.cpp"
+}
+]
